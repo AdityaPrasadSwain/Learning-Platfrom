@@ -1,0 +1,31 @@
+package com.antigravity.learningplatform.service;
+
+import com.antigravity.learningplatform.entity.User;
+import com.antigravity.learningplatform.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        
+        // Check if account is suspended
+        if (user.getIsSuspended() != null && user.getIsSuspended()) {
+            String reason = user.getSuspensionReason() != null ? user.getSuspensionReason() : "No reason provided";
+            throw new DisabledException("Your account has been permanently suspended. Reason: " + reason);
+        }
+        
+        return user;
+    }
+}

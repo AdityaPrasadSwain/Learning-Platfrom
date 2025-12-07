@@ -1,0 +1,38 @@
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java / Maven
+target/
+*.class
+*.log
+.mvn/
+mvnw
+mvnw.cmd
+
+# Spring Boot
+help.md
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# User Content / Temp
+uploads/
+videos/
+*.mp4
+*.mkv
+test_teacher_api.ps1
