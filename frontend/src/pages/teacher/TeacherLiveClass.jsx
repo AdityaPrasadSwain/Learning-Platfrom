@@ -24,8 +24,8 @@ import {
 import JitsiMeet from '../../components/JitsiMeet';
 import * as classService from '../../services/classService';
 import api from '../../services/api';
-import { showSuccess, showError, showLoading } from '../../utils/sweetAlert';
-import Swal from 'sweetalert2';
+import { showSuccess, showError, showLoading, showInput } from '../../utils/sweetAlert';
+
 
 const STATUS_COLORS = {
     LIVE: 'text-green-400 bg-green-400/10 border-green-400',
@@ -83,13 +83,13 @@ const TeacherLiveClass = () => {
         showLoading('Starting class...');
         try {
             const session = await classService.startClassSession(selectedCourseId);
-            Swal.close();
+
             setLiveSession(session);
             setInClass(true);
             fetchSessions(selectedCourseId);
             showSuccess('Class Started!', 'Students can now join the meeting.');
         } catch (e) {
-            Swal.close();
+
             const errorMsg = e.response?.data?.message || e.response?.data || e.message || 'Failed to start class.';
             showError('Error', typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg);
         }
@@ -100,28 +100,26 @@ const TeacherLiveClass = () => {
         showLoading('Ending class...');
         try {
             await classService.endClassSession(liveSession.id);
-            Swal.close();
+
             setLiveSession(null);
             setInClass(false);
             fetchSessions(selectedCourseId);
             showSuccess('Session Ended', 'The class recording will be available soon.');
         } catch (e) {
-            Swal.close();
+
             const errorMsg = e.response?.data?.message || e.response?.data || e.message || 'Failed to end class.';
             showError('Error', typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg);
         }
     };
 
     const handleAddRecording = async (sessionId) => {
-        const { value: url } = await Swal.fire({
-            title: 'Add Recording URL',
-            input: 'url',
-            inputLabel: 'Recording Link (e.g. YouTube, Drive)',
-            inputPlaceholder: 'https://...',
-            background: '#0f172a',
-            color: '#fff',
-            showCancelButton: true
-        });
+        const url = await showInput(
+            'Add Recording URL',
+            'Recording Link (e.g. YouTube, Drive)',
+            'https://...',
+            'url'
+        );
+
 
         if (url) {
             try {
@@ -155,13 +153,7 @@ const TeacherLiveClass = () => {
             const res = await api.get(`/attendance/session/${sessionId}`);
             setSelectedSessionAttendance(res.data);
         } catch (e) {
-            Swal.fire({
-                title: 'Error',
-                text: 'Failed to load attendance records.',
-                icon: 'error',
-                background: '#0f172a',
-                color: '#fff'
-            });
+            showError('Error', 'Failed to load attendance records.');
         } finally {
             setAttendanceLoading(false);
         }

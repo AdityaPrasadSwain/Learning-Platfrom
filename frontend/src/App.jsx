@@ -17,7 +17,7 @@ import Team from './pages/Team';
 import FAQ from './pages/FAQ';
 
 // Admin Imports
-import AdminDashboard from './pages/AdminDashboard';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import UserManagement from './pages/admin/UserManagement';
 import CourseManagement from './pages/admin/CourseManagement';
 import AuditLogs from './pages/admin/AuditLogs';
@@ -44,6 +44,9 @@ import TeacherProfile from './pages/teacher/TeacherProfile';
 import StartTeaching from './pages/teacher/StartTeaching';
 import TeacherCourseAttendance from './pages/teacher/TeacherCourseAttendance';
 import TeacherLiveClass from './pages/teacher/TeacherLiveClass';
+import AssignmentList from './pages/teacher/AssignmentList';
+import CreateAssignment from './pages/teacher/CreateAssignment';
+import GradingPage from './pages/teacher/GradingPage';
 
 // Student Imports
 import StudentDashboard from './pages/StudentDashboard';
@@ -55,9 +58,14 @@ import QuizAttempt from './pages/student/QuizAttempt';
 import QuizResult from './pages/student/QuizResult';
 import Payment from './pages/Payment';
 import StudentLiveClass from './pages/student/StudentLiveClass';
+import StudentAssignments from './pages/student/StudentAssignments';
+import SubmitAssignment from './pages/student/SubmitAssignment';
 
 // Profile
 import Profile from './pages/Profile';
+
+// Settings
+import SettingsLayout from './pages/settings/SettingsLayout';
 
 // Suspended
 import Suspended from './pages/Suspended';
@@ -102,6 +110,7 @@ function App() {
                         <Route path="/admin/quizzes" element={<QuizManagement />} />
                         <Route path="/admin/quizzes/:quizId" element={<AdminQuizDetail />} />
                         <Route path="/admin/applications" element={<TeacherApplications />} />
+                        <Route path="/admin/settings" element={<SettingsLayout />} />
                     </Route>
 
                     {/* Teacher Routes */}
@@ -119,6 +128,10 @@ function App() {
                         <Route path="/teacher/profile" element={<TeacherProfile />} />
                         <Route path="/teacher/course/:courseId/attendance" element={<TeacherCourseAttendance />} />
                         <Route path="/teacher/live-class" element={<TeacherLiveClass />} />
+                        <Route path="/teacher/assignments" element={<AssignmentList />} />
+                        <Route path="/teacher/assignment/create" element={<CreateAssignment />} />
+                        <Route path="/teacher/assignment/:assignmentId/submissions" element={<GradingPage />} />
+                        <Route path="/teacher/settings" element={<SettingsLayout />} />
                     </Route>
 
                     {/* Student Exclusive Routes */}
@@ -133,6 +146,9 @@ function App() {
                         <Route path="/student/quiz/:quizId/result" element={<QuizResult />} />
                         <Route path="/payment/:courseId" element={<Payment />} />
                         <Route path="/student/live-class" element={<StudentLiveClass />} />
+                        <Route path="/student/assignments" element={<StudentAssignments />} />
+                        <Route path="/student/assignment/:assignmentId" element={<SubmitAssignment />} />
+                        <Route path="/student/settings" element={<SettingsLayout />} />
                         <Route path="/watch/:id" element={<VideoPlayerPage />} />
                     </Route>
 

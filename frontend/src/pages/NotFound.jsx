@@ -1,7 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-
 import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
 
@@ -13,9 +11,7 @@ const NotFound = () => {
     };
 
     return (
-        <div className="min-h-screen text-white relative overflow-hidden flex flex-col items-center justify-center">
-
-            <Navbar />
+        <div className="min-h-screen flex items-center justify-center bg-slate-950 p-6 overflow-hidden">
             <main className="container mx-auto px-6 pt-32 pb-12 flex-1 text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

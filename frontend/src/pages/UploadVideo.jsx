@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import PageWrapper from '../components/PageWrapper';
 import FileUploader from '../components/FileUploader';
 import { uploadVideo } from '../api/videoApi';
-import Swal from 'sweetalert2';
+import { showSuccess, showError } from '../utils/sweetAlert';
 
 const UploadVideo = () => {
     const navigate = useNavigate();
@@ -16,14 +16,7 @@ const UploadVideo = () => {
     const handleUpload = async (e) => {
         e.preventDefault();
         if (!file || !title) {
-            Swal.fire({
-                title: 'Error',
-                text: 'Please select a file and enter a title',
-                icon: 'error',
-                background: '#1f2937',
-                color: '#fff',
-                confirmButtonColor: '#ef4444'
-            });
+            showError('Error', 'Please select a file and enter a title');
             return;
         }
 
@@ -37,25 +30,11 @@ const UploadVideo = () => {
 
         try {
             await uploadVideo(formData);
-            Swal.fire({
-                title: 'Success',
-                text: 'Video uploaded successfully!',
-                icon: 'success',
-                background: '#1f2937',
-                color: '#fff',
-                confirmButtonColor: '#9333ea'
-            });
+            showSuccess('Success', 'Video uploaded successfully!');
             navigate('/teacher/videos');
         } catch (error) {
             console.error(error);
-            Swal.fire({
-                title: 'Error',
-                text: 'Failed to upload video',
-                icon: 'error',
-                background: '#1f2937',
-                color: '#fff',
-                confirmButtonColor: '#ef4444'
-            });
+            showError('Error', 'Failed to upload video');
         } finally {
             setUploading(false);
         }

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, XCircle, Calendar, FileQuestion, Users } from 'lucide-react';
 import api from '../../api/axiosConfig';
-import Navbar from '../../components/Navbar';
 import ThreeBackground from '../../components/ThreeBackground';
 
 const AdminQuizDetail = () => {
@@ -47,7 +46,6 @@ const AdminQuizDetail = () => {
         return (
             <div className="relative min-h-screen flex items-center justify-center">
                 <ThreeBackground />
-                <Navbar />
                 <div className="relative z-10 text-white text-xl">Loading quiz details...</div>
             </div>
         );
@@ -57,7 +55,6 @@ const AdminQuizDetail = () => {
         return (
             <div className="relative min-h-screen">
                 <ThreeBackground />
-                <Navbar />
                 <div className="relative z-10 pt-24 px-6 max-w-7xl mx-auto">
                     <div className="glass-panel p-8 text-center">
                         <p className="text-red-400 text-xl">{error || 'Quiz not found'}</p>
@@ -73,7 +70,6 @@ const AdminQuizDetail = () => {
     return (
         <div className="relative min-h-screen">
             <ThreeBackground />
-            <Navbar />
             <div className="relative z-10 pt-24 px-6 max-w-7xl mx-auto space-y-6 pb-12">
                 {/* Header */}
                 <div className="flex items-center gap-4">

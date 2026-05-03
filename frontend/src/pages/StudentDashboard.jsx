@@ -94,7 +94,7 @@ const StudentDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
                 <StatCard icon={BookOpen} gradient="from-cyan-500 to-blue-600" title="Available Courses" value={stats.totalCourses} />
                 <StatCard icon={Play} gradient="from-green-400 to-emerald-600" title="In Progress" value={stats.inProgress} />
-                <StatCard icon={Award} gradient="from-yellow-400 to-orange-500" title="Completed" value={stats.completedCourses} />
+                <StatCard icon={Award} gradient="from-indigo-500 to-violet-600" title="Completed" value={stats.completedCourses} />
                 <StatCard icon={GraduationCap} gradient="from-purple-500 to-pink-500" title="Certificates" value={stats.certificates} />
             </div>
 

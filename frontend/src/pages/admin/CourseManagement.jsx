@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
+import { Search, Eye, CheckCircle, XCircle, ArrowLeft, BookOpen, User, Tag } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllCoursesAdmin, approveCourse, rejectCourse } from '../../api/adminApi';
 import { showSuccess, showError, showConfirm, showLoading } from '../../utils/sweetAlert';
@@ -28,22 +28,15 @@ const CourseManagement = () => {
             setLoading(true);
             setError(null);
             const data = await getAllCoursesAdmin();
-            console.log('Fetched courses:', data);
-
             if (Array.isArray(data)) {
                 setCourses(data);
             } else {
-                console.error('Data is not an array:', data);
                 setCourses([]);
-                if (data && data.message) {
-                    setError(data.message);
-                }
             }
         } catch (error) {
             console.error('Error fetching courses:', error);
-            console.error('Error details:', error.response);
             setError(error.response?.data?.message || error.message || 'Failed to load courses.');
-            showError('Error', error.response?.data?.message || 'Failed to load courses.');
+            showError('Error', 'Failed to load courses.');
             setCourses([]);
         } finally {
             setLoading(false);
@@ -63,7 +56,6 @@ const CourseManagement = () => {
                 await showSuccess('Published!', `${course.title} is now published`);
                 fetchCourses();
             } catch (error) {
-                console.error('Error approving course:', error);
                 Swal.close();
                 showError('Error', 'Failed to publish course');
             }
@@ -83,7 +75,6 @@ const CourseManagement = () => {
                 await showSuccess('Unpublished!', `${course.title} has been unpublished`);
                 fetchCourses();
             } catch (error) {
-                console.error('Error rejecting course:', error);
                 Swal.close();
                 showError('Error', 'Failed to unpublish course');
             }
@@ -91,111 +82,111 @@ const CourseManagement = () => {
     };
 
     const filteredCourses = Array.isArray(courses) ? courses.filter(course => {
-        try {
-            const titleMatch = course.title?.toLowerCase().includes(searchTerm.toLowerCase());
-            const instructorMatch = course.instructor?.username?.toLowerCase().includes(searchTerm.toLowerCase());
-            return titleMatch || instructorMatch;
-        } catch (e) {
-            console.warn('Error filtering course:', course, e);
-            return false;
-        }
+        const titleMatch = course.title?.toLowerCase().includes(searchTerm.toLowerCase());
+        const instructorMatch = course.instructor?.username?.toLowerCase().includes(searchTerm.toLowerCase());
+        return titleMatch || instructorMatch;
     }) : [];
 
     if (loading) {
         return (
-            <div className="relative h-full flex items-center justify-center text-white">
-                <div className="relative z-10 text-2xl font-orbitron animate-pulse">Loading courses...</div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="relative h-full text-white">
-                <div className="relative z-10 px-6 max-w-7xl mx-auto text-center">
-                    <h2 className="text-2xl text-red-500 font-bold mb-4">Error Loading Courses</h2>
-                    <p className="text-gray-300 mb-4">{error}</p>
-                    <button
-                        onClick={fetchCourses}
-                        className="px-4 py-2 bg-neon-blue text-white rounded hover:bg-blue-600 transition-colors"
-                    >
-                        Retry
-                    </button>
-                </div>
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+                <div className="w-12 h-12 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+                <p className="text-slate-500 dark:text-slate-400 font-orbitron">Loading Catalog...</p>
             </div>
         );
     }
 
     return (
-        <div className="relative h-full text-white">
-            <div className="relative z-10 px-6 max-w-7xl mx-auto space-y-6 pb-12">
-                <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <Link
-                            to="/admin/dashboard"
-                            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-                        >
-                            <ArrowLeft size={20} />
-                            <span>Back to Dashboard</span>
-                        </Link>
-                        <h1 className="text-2xl font-bold font-orbitron text-white neon-text">Course Management</h1>
-                    </div>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neon-blue" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search courses..."
-                            className="pl-10 pr-4 py-2 glass-panel text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-blue"
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+        <div className="max-w-7xl mx-auto space-y-8 pb-12 transition-colors duration-500">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                    <Link
+                        to="/admin/dashboard"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-500 transition-colors group"
+                    >
+                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                        <span>Back to Dashboard</span>
+                    </Link>
+                    <h1 className="text-3xl font-display font-bold text-slate-900 dark:text-white tracking-tight">Course Management</h1>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Oversee and moderate all courses on the platform.</p>
                 </div>
-                <div className="glass-panel overflow-hidden">
+
+                <div className="relative group max-w-md w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+                    <input
+                        type="text"
+                        placeholder="Search by title or instructor..."
+                        className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm"
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                    />
+                </div>
+            </div>
+
+            {/* Table Section */}
+            <div className="glass-panel overflow-hidden border border-slate-200 dark:border-white/10 shadow-xl">
+                <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                        <thead className="bg-white/5 border-b border-white/10">
-                            <tr>
-                                <th className="px-6 py-3 text-xs font-semibold text-neon-blue uppercase tracking-wider">Course Title</th>
-                                <th className="px-6 py-3 text-xs font-semibold text-neon-blue uppercase tracking-wider">Instructor</th>
-                                <th className="px-6 py-3 text-xs font-semibold text-neon-blue uppercase tracking-wider">Category</th>
-                                <th className="px-6 py-3 text-xs font-semibold text-neon-blue uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-xs font-semibold text-neon-blue uppercase tracking-wider">Actions</th>
+                        <thead>
+                            <tr className="bg-slate-50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/10">
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Course Info</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Instructor</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Category</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10">
+                        <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                             {filteredCourses.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-8 text-center text-gray-400">No courses found</td>
+                                    <td colSpan="5" className="px-6 py-12 text-center text-slate-500 dark:text-slate-400 italic">No courses found matching your search.</td>
                                 </tr>
                             ) : (
                                 filteredCourses.map(course => (
-                                    <tr key={course.id} className="hover:bg-white/5 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-white">{course.title}</td>
-                                        <td className="px-6 py-4 text-gray-300">
-                                            {course.instructor ? course.instructor.username : 'Unknown'}
+                                    <tr key={course.id} className="group hover:bg-slate-50 dark:hover:bg-white/[0.01] transition-colors">
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600">
+                                                    <BookOpen size={20} />
+                                                </div>
+                                                <div className="font-bold text-slate-900 dark:text-white">{course.title}</div>
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4 text-gray-300">{course.category}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${course.isPublished ? 'bg-green-500/20 text-green-400 border border-green-500' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500'}`}>
-                                                {course.isPublished ? 'Published' : 'Draft/Pending'}
+                                        <td className="px-6 py-5 text-center">
+                                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium border border-slate-200 dark:border-white/5">
+                                                <User size={14} className="text-slate-400" />
+                                                {course.instructor ? course.instructor.username : 'Unknown'}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 text-center">
+                                            <div className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300 text-sm">
+                                                <Tag size={14} className="text-slate-400" />
+                                                {course.category}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 text-center">
+                                            <span className={`px-3 py-1 inline-flex text-[10px] font-bold uppercase tracking-widest rounded-full ${course.isPublished ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'}`}>
+                                                {course.isPublished ? 'Published' : 'Draft'}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium space-x-2">
-                                            <Link to={`/course/${course.id}`}>
-                                                <button className="text-neon-blue hover:text-blue-300 transition-colors" title="View">
-                                                    <Eye size={18} />
-                                                </button>
-                                            </Link>
-                                            {!course.isPublished && (
-                                                <button onClick={() => handleApprove(course)} className="text-green-400 hover:text-green-300 transition-colors" title="Approve/Publish">
-                                                    <CheckCircle size={18} />
-                                                </button>
-                                            )}
-                                            {course.isPublished && (
-                                                <button onClick={() => handleReject(course)} className="text-orange-400 hover:text-orange-300 transition-colors" title="Unpublish">
-                                                    <XCircle size={18} />
-                                                </button>
-                                            )}
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <Link to={`/course/${course.id}`}>
+                                                    <button className="p-2 text-slate-400 hover:text-indigo-500 hover:bg-indigo-500/10 rounded-lg transition-all" title="View Details">
+                                                        <Eye size={18} />
+                                                    </button>
+                                                </Link>
+                                                {!course.isPublished ? (
+                                                    <button onClick={() => handleApprove(course)} className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all" title="Publish Course">
+                                                        <CheckCircle size={18} />
+                                                    </button>
+                                                ) : (
+                                                    <button onClick={() => handleReject(course)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all" title="Unpublish Course">
+                                                        <XCircle size={18} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))

@@ -17,14 +17,15 @@ export default {
                     card: '#ffffff',
                 },
                 brand: {
-                    primary: '#14b8a6', // Teal 500
-                    secondary: '#0ea5e9', // Sky 500
-                    accent: '#6366f1', // Indigo 500
+                    primary: '#6366f1', // Indigo 500
+                    secondary: '#8b5cf6', // Violet 500
+                    accent: '#0ea5e9', // Sky 500
                 }
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
                 display: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                orbitron: ['Orbitron', 'sans-serif'],
             },
             animation: {
                 'float-slow': 'float 8s ease-in-out infinite',

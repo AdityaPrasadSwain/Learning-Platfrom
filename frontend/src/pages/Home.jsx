@@ -9,7 +9,7 @@ import FAQ from './FAQ';
 
 const Home = () => {
     return (
-        <div className="text-white">
+        <div className="overflow-hidden">
             {/* Hero Section */}
             <section id="home" className="flex items-center justify-center pt-10 pb-20 px-6 min-h-[90vh]">
                 <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">

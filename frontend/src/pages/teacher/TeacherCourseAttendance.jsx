@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
 import ThreeBackground from '../../components/ThreeBackground';
 import { ArrowLeft, Play, Save, CheckCircle, XCircle } from 'lucide-react';
 import { startOrGetSession, markAttendance } from '../../api/attendanceApi';
@@ -54,7 +53,6 @@ const TeacherCourseAttendance = () => {
     return (
         <div className="relative min-h-screen">
             <ThreeBackground />
-            <Navbar />
             <div className="relative z-10 pt-24 px-6 max-w-4xl mx-auto space-y-6">
                 <div className="flex justify-between items-center">
                     <button

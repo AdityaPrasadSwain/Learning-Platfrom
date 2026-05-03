@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle, XCircle, ArrowLeft, FileText } from 'lucide-react';
+import { Search, CheckCircle, XCircle, ArrowLeft, FileText, User, Mail, Briefcase, Info } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { getPendingApplications, approveApplication, rejectApplication } from '../../api/adminApi';
-import { showSuccess, showError, showConfirm, showLoading } from '../../utils/sweetAlert';
+import { showSuccess, showError, showConfirm, showLoading, showInput } from '../../utils/sweetAlert';
 import Swal from 'sweetalert2';
 
 const TeacherApplications = () => {
     const [applications, setApplications] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchApplications();
@@ -39,7 +41,6 @@ const TeacherApplications = () => {
                 await showSuccess('Approved!', `${app.user.username} is now a teacher`);
                 fetchApplications();
             } catch (error) {
-                console.error('Error approving application:', error);
                 Swal.close();
                 showError('Error', 'Failed to approve application');
             }
@@ -47,25 +48,13 @@ const TeacherApplications = () => {
     };
 
     const handleReject = async (app) => {
-        const result = await Swal.fire({
-            title: 'Reject Application?',
-            text: `Please provide a reason for rejecting ${app.user.username}:`,
-            input: 'text',
-            inputPlaceholder: 'Reason for rejection...',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, reject it!',
-            inputValidator: (value) => {
-                if (!value) {
-                    return 'You need to write a reason!'
-                }
-            }
-        });
+        const reason = await showInput(
+            'Reject Application?',
+            `Please provide a reason for rejecting ${app.user.username}:`,
+            'Reason for rejection...'
+        );
 
-        if (result.isConfirmed) {
-            const reason = result.value;
+        if (reason) {
             showLoading('Rejecting application...');
             try {
                 await rejectApplication(app.id, reason);
@@ -73,7 +62,6 @@ const TeacherApplications = () => {
                 await showSuccess('Rejected', 'Application has been rejected');
                 fetchApplications();
             } catch (error) {
-                console.error('Error rejecting application:', error);
                 Swal.close();
                 showError('Error', 'Failed to reject application');
             }
@@ -87,101 +75,121 @@ const TeacherApplications = () => {
 
     if (loading) {
         return (
-            <div className="relative h-full flex items-center justify-center">
-                <div className="text-white text-2xl font-orbitron animate-pulse">Loading applications...</div>
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+                <div className="w-12 h-12 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+                <p className="text-slate-500 dark:text-slate-400 font-orbitron">Processing Applications...</p>
             </div>
         );
     }
 
     return (
-        <div className="relative h-full">
-            <div className="relative z-10 px-6 max-w-7xl mx-auto space-y-6">
-                <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <a
-                            href="/admin/dashboard"
-                            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-                        >
-                            <ArrowLeft size={20} />
-                            <span>Back to Dashboard</span>
-                        </a>
-                        <h1 className="text-2xl font-bold font-orbitron text-white neon-text">Teacher Applications</h1>
-                    </div>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neon-blue" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search applicants..."
-                            className="pl-10 pr-4 py-2 glass-panel text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-blue"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+        <div className="max-w-7xl mx-auto space-y-8 pb-12 transition-colors duration-500">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                    <Link
+                        to="/admin/dashboard"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-500 transition-colors group"
+                    >
+                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                        <span>Back to Dashboard</span>
+                    </Link>
+                    <h1 className="text-3xl font-display font-bold text-slate-900 dark:text-white tracking-tight">Teacher Applications</h1>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Review and vet potential instructors for the platform.</p>
                 </div>
 
-                <div className="glass-panel overflow-hidden">
-                    {applications.length === 0 ? (
-                        <div className="p-8 text-center text-gray-400">
-                            No pending applications found.
-                        </div>
-                    ) : (
-                        <table className="w-full text-left">
-                            <thead className="bg-white/5 border-b border-white/10">
+                <div className="relative group max-w-md w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+                    <input
+                        type="text"
+                        placeholder="Search applicants..."
+                        className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm"
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                    />
+                </div>
+            </div>
+
+            {/* Table Section */}
+            <div className="glass-panel overflow-hidden border border-slate-200 dark:border-white/10 shadow-xl">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-slate-50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/10">
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Applicant</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Background</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Credentials</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                            {filteredApplications.length === 0 ? (
                                 <tr>
-                                    <th className="px-6 py-3 text-xs font-semibold text-neon-blue uppercase tracking-wider">Applicant</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-neon-blue uppercase tracking-wider">Experience</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-neon-blue uppercase tracking-wider">Bio</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-neon-blue uppercase tracking-wider">Resume</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-neon-blue uppercase tracking-wider">Actions</th>
+                                    <td colSpan="4" className="px-6 py-12 text-center text-slate-500 dark:text-slate-400 italic">No pending applications at this time.</td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/10">
-                                {filteredApplications.map((app) => (
-                                    <tr key={app.id} className="hover:bg-white/5 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div>
-                                                <div className="text-sm font-medium text-white">{app.user.username}</div>
-                                                <div className="text-sm text-gray-400">{app.user.email}</div>
-                                                <div className="text-xs text-gray-500 mt-1">Submitted: {new Date(app.submittedAt).toLocaleDateString()}</div>
+                            ) : (
+                                filteredApplications.map((app) => (
+                                    <tr key={app.id} className="group hover:bg-slate-50 dark:hover:bg-white/[0.01] transition-colors">
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-11 h-11 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 font-bold">
+                                                    {app.user.username[0].toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-slate-900 dark:text-white">{app.user.username}</div>
+                                                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                                        <Mail size={12} />
+                                                        {app.user.email}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-300">
-                                            {app.experience}
+                                        <td className="px-6 py-5 text-center">
+                                            <div className="space-y-1">
+                                                <div className="inline-flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300 font-medium">
+                                                    <Briefcase size={14} className="text-slate-400" />
+                                                    {app.experience}
+                                                </div>
+                                                <div className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1">
+                                                    <Info size={10} />
+                                                    Submitted: {new Date(app.submittedAt).toLocaleDateString()}
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-300 max-w-xs truncate" title={app.bio}>
-                                            {app.bio}
-                                        </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-5 text-center">
                                             <a
                                                 href={app.resumeUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-neon-blue hover:text-neon-purple flex items-center gap-1 text-sm"
+                                                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-indigo-500 hover:text-white transition-all border border-slate-200 dark:border-white/5 shadow-sm"
                                             >
-                                                <FileText size={16} /> View Resume
+                                                <FileText size={16} />
+                                                View Portfolio
                                             </a>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium space-x-2">
-                                            <button
-                                                onClick={() => handleApprove(app)}
-                                                className="text-green-400 hover:text-green-300 transition-colors p-1"
-                                                title="Approve"
-                                            >
-                                                <CheckCircle size={20} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleReject(app)}
-                                                className="text-red-400 hover:text-red-300 transition-colors p-1"
-                                                title="Reject"
-                                            >
-                                                <XCircle size={20} />
-                                            </button>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <button
+                                                    onClick={() => handleApprove(app)}
+                                                    className="p-2.5 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-xl transition-all transform hover:scale-110 shadow-sm"
+                                                    title="Approve Application"
+                                                >
+                                                    <CheckCircle size={20} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleReject(app)}
+                                                    className="p-2.5 bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white rounded-xl transition-all transform hover:scale-110 shadow-sm"
+                                                    title="Reject Application"
+                                                >
+                                                    <XCircle size={20} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

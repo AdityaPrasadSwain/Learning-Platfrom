@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/enrollments/**").hasAnyRole("STUDENT", "ADMIN")
                         .requestMatchers("/api/class/**").authenticated()
                         .requestMatchers("/api/attendance/**").authenticated()
+                        .requestMatchers("/api/notifications/**").authenticated()
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authenticationProvider(authenticationProvider())

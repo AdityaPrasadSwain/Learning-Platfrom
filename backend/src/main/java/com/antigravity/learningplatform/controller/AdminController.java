@@ -27,6 +27,7 @@ public class AdminController {
         try {
             return ResponseEntity.ok(applicationService.getPendingApplications());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().body("Error fetching applications: " + e.getMessage());
         }
     }

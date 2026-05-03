@@ -12,7 +12,8 @@ import {
     File, ArrowLeft, Edit, X, Settings, BookOpen,
     CheckCircle, XCircle, GripVertical, ChevronRight
 } from 'lucide-react';
-import Swal from 'sweetalert2';
+import { showSuccess, showError, showConfirm } from '../../utils/sweetAlert';
+
 
 const inputClass = "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20 transition-all";
 const labelClass = "block text-sm font-semibold text-gray-300 mb-2";
@@ -39,7 +40,7 @@ const CourseEditor = () => {
             setCourse(data);
             setCourseForm({ title: data.title, description: data.description, category: data.category, duration: data.duration, isPublished: data.isPublished });
         } catch (error) {
-            Swal.fire({ title: 'Error', text: 'Failed to load course details', icon: 'error', background: '#0d1117', color: '#fff', confirmButtonColor: '#ef4444' });
+            showError('Error', 'Failed to load course details');
         }
     };
 
@@ -78,32 +79,25 @@ const CourseEditor = () => {
             setShowLessonModal(false);
             setSelectedLesson(null);
             fetchLessons();
-            Swal.fire({ title: 'Saved!', icon: 'success', background: '#0d1117', color: '#fff', confirmButtonColor: '#9333ea', timer: 1500 });
+            showSuccess('Saved!', 'Lesson saved successfully');
         } catch (error) {
-            Swal.fire({ title: 'Error', text: 'Failed to save lesson', icon: 'error', background: '#0d1117', color: '#fff', confirmButtonColor: '#ef4444' });
+            showError('Error', 'Failed to save lesson');
         }
     };
 
     const handleDeleteLesson = async (lessonId, lessonTitle) => {
-        const result = await Swal.fire({
-            title: 'Delete Lesson?',
-            text: `"${lessonTitle}" will be permanently deleted.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Delete',
-            background: '#0d1117',
-            color: '#fff'
-        });
-        if (result.isConfirmed) {
+        const confirmed = await showConfirm(
+            'Delete Lesson?',
+            `"${lessonTitle}" will be permanently deleted.`
+        );
+        if (confirmed) {
             try {
                 await deleteLesson(lessonId);
                 fetchLessons();
                 if (selectedLesson?.id === lessonId) setSelectedLesson(null);
-                Swal.fire({ title: 'Deleted', icon: 'success', background: '#0d1117', color: '#fff', timer: 1200 });
+                showSuccess('Deleted', 'Lesson has been deleted');
             } catch (error) {
-                Swal.fire({ title: 'Error', text: 'Failed to delete lesson', icon: 'error', background: '#0d1117', color: '#fff' });
+                showError('Error', 'Failed to delete lesson');
             }
         }
     };
@@ -115,9 +109,9 @@ const CourseEditor = () => {
         try {
             await uploadLessonMaterial(selectedLesson.id, file, file.name);
             fetchMaterials(selectedLesson.id);
-            Swal.fire({ title: 'Uploaded!', icon: 'success', background: '#0d1117', color: '#fff', timer: 1200 });
+            showSuccess('Uploaded!', 'File uploaded successfully');
         } catch (error) {
-            Swal.fire({ title: 'Upload Failed', icon: 'error', background: '#0d1117', color: '#fff' });
+            showError('Upload Failed', 'Could not upload file');
         } finally {
             setUploadingFile(false);
             e.target.value = '';
@@ -125,21 +119,16 @@ const CourseEditor = () => {
     };
 
     const handleDeleteMaterial = async (materialId, fileName) => {
-        const result = await Swal.fire({
-            title: 'Delete File?',
-            text: `"${fileName}" will be removed.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            background: '#0d1117',
-            color: '#fff'
-        });
-        if (result.isConfirmed) {
+        const confirmed = await showConfirm(
+            'Delete File?',
+            `"${fileName}" will be removed.`
+        );
+        if (confirmed) {
             try {
                 await deleteLessonMaterial(materialId);
                 fetchMaterials(selectedLesson.id);
             } catch (error) {
-                Swal.fire({ title: 'Error', text: 'Failed to delete file', icon: 'error', background: '#0d1117', color: '#fff' });
+                showError('Error', 'Failed to delete file');
             }
         }
     };
@@ -150,9 +139,9 @@ const CourseEditor = () => {
             await updateCourse(id, courseForm);
             setShowCourseModal(false);
             fetchCourseDetails();
-            Swal.fire({ title: 'Course Updated!', icon: 'success', background: '#0d1117', color: '#fff', timer: 1500 });
+            showSuccess('Course Updated!', 'Changes saved successfully');
         } catch (error) {
-            Swal.fire({ title: 'Error', text: 'Failed to update course', icon: 'error', background: '#0d1117', color: '#fff' });
+            showError('Error', 'Failed to update course');
         }
     };
 

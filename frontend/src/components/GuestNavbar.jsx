@@ -45,7 +45,7 @@ const GuestNavbar = () => {
                         </svg>
                     </div>
                     <span className="text-[20px] font-bold text-slate-900 dark:text-white tracking-tight">
-                        e-Learling
+                        e-Learning
                     </span>
                 </Link>
 

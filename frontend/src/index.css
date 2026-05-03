@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --primary-gradient: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   --glass-border: rgba(255, 255, 255, 0.1);
 }
 
@@ -95,11 +95,11 @@ h6 {
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  background-image: linear-gradient(to right, #14b8a6, #0ea5e9);
+  background-image: linear-gradient(to right, #6366f1, #8b5cf6);
 }
 
 .gradient-bg {
-  background-image: linear-gradient(to right, #14b8a6, #0ea5e9);
+  background-image: linear-gradient(to right, #6366f1, #8b5cf6);
   color: white;
 }
 
@@ -221,86 +221,64 @@ h6 {
   border-color: rgba(0, 243, 255, 0.4);
 }
 
-/* SweetAlert2 Custom Styles - Anti-Gravity Theme */
-.swal-antigravity {
-  background: rgba(10, 10, 30, 0.98) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 2px solid rgba(0, 212, 255, 0.3) !important;
-  border-radius: 1rem !important;
-  box-shadow: 0 0 30px rgba(0, 212, 255, 0.3),
-    0 0 60px rgba(188, 19, 254, 0.2) !important;
+/* SweetAlert2 Custom Styles - Theme-Aware Anti-Gravity Theme */
+.swal-antigravity-popup {
+  @apply bg-white/90 dark:bg-slate-900/95 backdrop-blur-2xl border-2 border-slate-200 dark:border-white/10 rounded-[2rem] shadow-2xl !important;
   animation: swalFloat 3s ease-in-out infinite;
 }
 
-.swal-antigravity .swal2-title {
-  color: #00f3ff !important;
-  font-family: 'Orbitron', sans-serif !important;
-  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+.swal-antigravity-title {
+  @apply text-slate-900 dark:text-white font-bold font-orbitron tracking-wider !important;
 }
 
-.swal-antigravity .swal2-html-container {
-  color: rgba(255, 255, 255, 0.9) !important;
+.swal-antigravity-html {
+  @apply text-slate-600 dark:text-gray-300 font-sans !important;
 }
 
-.swal-btn-confirm {
-  background: linear-gradient(135deg, #00f3ff, #bc13fe) !important;
-  border: none !important;
-  border-radius: 0.5rem !important;
-  padding: 0.75rem 2rem !important;
-  font-weight: bold !important;
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5) !important;
-  transition: all 0.3s ease !important;
+.swal-antigravity-confirm {
+  @apply rounded-xl px-8 py-3.5 font-bold text-white bg-gradient-to-r from-brand-primary to-brand-secondary shadow-lg shadow-brand-primary/20 hover:shadow-brand-primary/40 transform hover:scale-105 transition-all duration-300 border border-white/20 !important;
 }
 
-.swal-btn-confirm:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 0 25px rgba(0, 212, 255, 0.8) !important;
+.swal-antigravity-cancel {
+  @apply rounded-xl px-8 py-3.5 font-bold text-slate-700 dark:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-white/10 !important;
 }
 
-.swal-btn-cancel {
-  background: rgba(255, 68, 68, 0.8) !important;
-  border: 1px solid rgba(255, 68, 68, 0.5) !important;
-  border-radius: 0.5rem !important;
-  padding: 0.75rem 2rem !important;
-  font-weight: bold !important;
-  transition: all 0.3s ease !important;
+.swal-antigravity-input {
+  @apply bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 transition-all !important;
 }
 
-.swal-btn-cancel:hover {
-  background: rgba(255, 68, 68, 1) !important;
-  transform: translateY(-2px) !important;
+/* Success variant specific styles */
+.swal-success-popup {
+  @apply border-emerald-500/30 shadow-emerald-500/20 !important;
+}
+.swal-success-confirm {
+  @apply from-emerald-500 to-teal-600 shadow-emerald-500/20 !important;
 }
 
-.swal2-icon.swal2-success .swal2-success-ring {
-  border-color: rgba(0, 243, 255, 0.3) !important;
+/* Error variant specific styles */
+.swal-error-popup {
+  @apply border-red-500/30 shadow-red-500/20 !important;
+}
+.swal-error-confirm {
+  @apply from-red-500 to-rose-600 shadow-red-500/20 !important;
 }
 
-.swal2-icon.swal2-success [class^='swal2-success-line'] {
-  background-color: #00f3ff !important;
+/* Info variant specific styles */
+.swal-info-popup {
+  @apply border-blue-500/30 shadow-blue-500/20 !important;
+}
+.swal-info-confirm {
+  @apply from-blue-500 to-cyan-600 shadow-blue-500/20 !important;
 }
 
-.swal2-icon.swal2-error {
-  border-color: rgba(255, 68, 68, 0.5) !important;
+/* Warning variant specific styles */
+.swal-warning-popup {
+  @apply border-amber-500/30 shadow-amber-500/20 !important;
+}
+.swal-warning-confirm {
+  @apply from-indigo-500 to-violet-600 shadow-indigo-500/20 !important;
 }
 
-.swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
-  background-color: #ff4444 !important;
-}
-
-.swal2-icon.swal2-warning {
-  border-color: rgba(255, 193, 7, 0.5) !important;
-  color: #ffc107 !important;
-}
-
-.swal2-icon.swal2-info {
-  border-color: rgba(0, 243, 255, 0.5) !important;
-  color: #00f3ff !important;
-}
-
-.swal2-icon.swal2-question {
-  border-color: rgba(188, 19, 254, 0.5) !important;
-  color: #bc13fe !important;
-}
 
 @keyframes swalFloat {
 

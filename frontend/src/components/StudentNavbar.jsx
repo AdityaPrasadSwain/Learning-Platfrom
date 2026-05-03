@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Settings } from 'lucide-react';
 import Logo from './Logo';
 
 import ThemeToggle from './ThemeToggle';
+import NotificationBell from './NotificationBell';
 
 // Simplified navbar — navigation has been moved to StudentLayout sidebar
 const StudentNavbar = () => {
@@ -22,20 +23,14 @@ const StudentNavbar = () => {
         <motion.nav
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="sticky top-0 w-full bg-white/5 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/10 z-50 px-6 py-3"
+            className="sticky top-0 w-full bg-white/80 dark:bg-slate-900/40 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 z-50 px-6 py-3 transition-colors duration-300"
         >
-            <div className="container mx-auto flex justify-between items-center">
-                <Link to="/student/dashboard" className="flex items-center gap-3 group">
-                    <div className="p-2 bg-gradient-to-tr from-brand-primary to-brand-secondary rounded-xl group-hover:rotate-12 transition-transform duration-300 shadow-lg shadow-brand-primary/20">
-                        <Logo size={28} color="white" />
-                    </div>
-                    <span className="text-xl font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-secondary">
-                        LearningStream
-                    </span>
-                </Link>
+            <div className="flex justify-end items-center">
+
 
                 <div className="flex items-center gap-6">
                     <ThemeToggle />
+                    <NotificationBell />
                     
                     {/* User Profile Dropdown */}
                     <div className="relative">
@@ -76,6 +71,15 @@ const StudentNavbar = () => {
                                             >
                                                 <User size={18} />
                                                 <span>My Profile</span>
+                                            </Link>
+
+                                            <Link 
+                                                to="/student/settings" 
+                                                onClick={() => setIsUserMenuOpen(false)}
+                                                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-cyan-400 rounded-xl transition-all"
+                                            >
+                                                <Settings size={18} />
+                                                <span>Settings</span>
                                             </Link>
                                             
                                             <button 
