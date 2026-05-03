@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Shield, Calendar, Edit, Save, X, Camera, Trash2 } from 'lucide-react';
-import Navbar from '../components/Navbar';
-
-import Footer from '../components/Footer';
+import { User, Mail, Shield, Calendar, Edit, Save, X, Camera, Trash2, CameraIcon } from 'lucide-react';
 import { showSuccess, showError, showLoading } from '../utils/sweetAlert';
 import Swal from 'sweetalert2';
 import api from '../services/api';
@@ -141,218 +138,148 @@ const Profile = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white relative overflow-hidden flex items-center justify-center transition-colors duration-300">
-
-                <Navbar />
-                <div className="text-2xl">Loading profile...</div>
+            <div className="flex items-center justify-center h-64 text-white">
+                <div className="text-xl font-orbitron animate-pulse text-cyan-400">Syncing profile...</div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300 relative overflow-hidden flex flex-col">
+        <div className="text-white">
+            {/* Header */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+                <h1 className="text-3xl font-bold font-orbitron">My <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Profile</span></h1>
+                <p className="text-gray-400 mt-1">Manage your identity and account settings.</p>
+            </motion.div>
 
-            <Navbar />
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                {/* Profile Card */}
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden">
+                    {/* Header Section */}
+                    <div className="bg-gradient-to-r from-cyan-500/10 to-blue-600/10 p-8 border-b border-white/5 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-from)_0%,_transparent_50%)] from-cyan-500/10" />
+                        
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                            <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                                {/* Profile Photo */}
+                                <div className="relative group">
+                                    {photoPreview || userData.profilePhoto ? (
+                                        <img src={photoPreview || userData.profilePhoto} alt="Profile"
+                                            className="w-28 h-28 rounded-2xl object-cover border-2 border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.2)]" />
+                                    ) : (
+                                        <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-4xl font-bold border-2 border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.2)]">
+                                            {userData.username.charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
 
-            <main className="container mx-auto px-6 pt-32 pb-12 flex-1">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="max-w-4xl mx-auto"
-                >
-                    {/* Header */}
-                    <div className="mb-8">
-                        <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-white">My Profile</h1>
-                        <p className="text-gray-600 dark:text-gray-400">Manage your account information</p>
-                    </div>
+                                    {isEditing && (
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <label className="cursor-pointer bg-black/60 backdrop-blur-md rounded-xl p-2.5 hover:bg-black/80 transition-all border border-white/10">
+                                                <CameraIcon size={18} />
+                                                <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+                                            </label>
+                                        </div>
+                                    )}
 
-                    {/* Profile Card */}
-                    <div className="bg-white dark:bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden shadow-xl dark:shadow-none">
-                        {/* Header Section */}
-                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-600/20 dark:to-pink-600/20 p-8 border-b border-gray-200 dark:border-white/10">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-6">
-                                    {/* Profile Photo */}
-                                    <div className="relative group">
-                                        {photoPreview || userData.profilePhoto ? (
-                                            <img
-                                                src={photoPreview || userData.profilePhoto}
-                                                alt="Profile"
-                                                className="w-24 h-24 rounded-full object-cover border-4 border-purple-500/50"
-                                            />
-                                        ) : (
-                                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-4xl font-bold border-4 border-purple-500/50">
-                                                {userData.username.charAt(0).toUpperCase()}
-                                            </div>
-                                        )}
+                                    {isEditing && (photoPreview || userData.profilePhoto) && (
+                                        <button onClick={handleRemovePhoto}
+                                            className="absolute -top-2 -right-2 bg-red-500/80 backdrop-blur-md hover:bg-red-500 rounded-lg p-1.5 transition-all border border-white/10">
+                                            <Trash2 size={12} />
+                                        </button>
+                                    )}
+                                </div>
 
-                                        {isEditing && (
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <label className="cursor-pointer bg-black/70 rounded-full p-3 hover:bg-black/90 transition-colors">
-                                                    <Camera size={20} />
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={handlePhotoChange}
-                                                        className="hidden"
-                                                    />
-                                                </label>
-                                            </div>
-                                        )}
-
-                                        {isEditing && (photoPreview || userData.profilePhoto) && (
-                                            <button
-                                                onClick={handleRemovePhoto}
-                                                className="absolute -bottom-2 -right-2 bg-red-600 hover:bg-red-700 rounded-full p-2 transition-colors"
-                                                title="Remove photo"
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{userData.username}</h2>
-                                        <span className={`inline-block px-4 py-1 rounded-full text-sm font-semibold border ${getRoleBadgeColor(userData.role)}`}>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-white mb-1">{userData.username}</h2>
+                                    <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                                        <span className={`px-3 py-0.5 rounded-full text-[10px] font-bold border tracking-wider ${getRoleBadgeColor(userData.role)}`}>
                                             {userData.role}
+                                        </span>
+                                        <span className="px-3 py-0.5 rounded-full text-[10px] font-bold border border-white/10 bg-white/5 text-gray-400 tracking-wider">
+                                            MEMBER SINCE {new Date(userData.createdAt).getFullYear()}
                                         </span>
                                     </div>
                                 </div>
-                                {!isEditing && (
-                                    <button
-                                        onClick={handleEdit}
-                                        className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center gap-2"
-                                    >
-                                        <Edit size={18} />
-                                        Edit Profile
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Profile Information */}
-                        <div className="p-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Username */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        <User size={16} />
-                                        Username
-                                    </label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={editData.username}
-                                            onChange={(e) => setEditData({ ...editData, username: e.target.value })}
-                                            className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors"
-                                        />
-                                    ) : (
-                                        <p className="text-lg font-medium text-gray-900 dark:text-white">{userData.username}</p>
-                                    )}
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        <Mail size={16} />
-                                        Email
-                                    </label>
-                                    {isEditing ? (
-                                        <input
-                                            type="email"
-                                            value={editData.email}
-                                            onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                                            className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors"
-                                        />
-                                    ) : (
-                                        <p className="text-lg font-medium text-gray-900 dark:text-white">{userData.email}</p>
-                                    )}
-                                </div>
-
-                                {/* First Name */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        <User size={16} />
-                                        First Name
-                                    </label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={editData.firstName}
-                                            onChange={(e) => setEditData({ ...editData, firstName: e.target.value })}
-                                            className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors"
-                                        />
-                                    ) : (
-                                        <p className="text-lg font-medium text-gray-900 dark:text-white">{userData.firstName || 'Not set'}</p>
-                                    )}
-                                </div>
-
-                                {/* Last Name */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        <User size={16} />
-                                        Last Name
-                                    </label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={editData.lastName}
-                                            onChange={(e) => setEditData({ ...editData, lastName: e.target.value })}
-                                            className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors"
-                                        />
-                                    ) : (
-                                        <p className="text-lg font-medium text-gray-900 dark:text-white">{userData.lastName || 'Not set'}</p>
-                                    )}
-                                </div>
-
-                                {/* Role */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        <Shield size={16} />
-                                        Role
-                                    </label>
-                                    <p className="text-lg font-medium text-gray-900 dark:text-white">{userData.role}</p>
-                                </div>
-
-                                {/* Member Since */}
-                                <div>
-                                    <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        <Calendar size={16} />
-                                        Member Since
-                                    </label>
-                                    <p className="text-lg font-medium text-gray-900 dark:text-white">
-                                        {new Date(userData.createdAt).toLocaleDateString()}
-                                    </p>
-                                </div>
                             </div>
 
-                            {/* Action Buttons */}
-                            {isEditing && (
-                                <div className="flex gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-white/10">
-                                    <button
-                                        onClick={handleSave}
-                                        className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 rounded-lg transition-opacity flex items-center justify-center gap-2 font-medium"
-                                    >
-                                        <Save size={18} />
-                                        Save Changes
-                                    </button>
-                                    <button
-                                        onClick={handleCancel}
-                                        className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
-                                    >
-                                        <X size={18} />
-                                        Cancel
-                                    </button>
-                                </div>
+                            {!isEditing && (
+                                <button onClick={handleEdit}
+                                    className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all flex items-center gap-2 text-sm font-bold tracking-wide">
+                                    <Edit size={16} className="text-cyan-400" />
+                                    EDIT PROFILE
+                                </button>
                             )}
                         </div>
                     </div>
-                </motion.div>
-            </main>
 
-            <div className="relative z-10">
-                <Footer />
-            </div>
+                    {/* Profile Information */}
+                    <div className="p-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Input Fields */}
+                            {[
+                                { id: 'username', label: 'Username', icon: User, key: 'username' },
+                                { id: 'email', label: 'Email Address', icon: Mail, key: 'email' },
+                                { id: 'firstName', label: 'First Name', icon: User, key: 'firstName' },
+                                { id: 'lastName', label: 'Last Name', icon: User, key: 'lastName' },
+                            ].map((field) => (
+                                <div key={field.id}>
+                                    <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2.5">
+                                        <field.icon size={14} className="text-cyan-500" />
+                                        {field.label}
+                                    </label>
+                                    {isEditing ? (
+                                        <input type="text" value={editData[field.key]}
+                                            onChange={(e) => setEditData({ ...editData, [field.key]: e.target.value })}
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 transition-all text-sm" />
+                                    ) : (
+                                        <div className="px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-gray-300 text-sm">
+                                            {userData[field.key] || <span className="text-gray-600 italic">Not set</span>}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+
+                            {/* Role (Read Only) */}
+                            <div>
+                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2.5">
+                                    <Shield size={14} className="text-cyan-500" />
+                                    Account Role
+                                </label>
+                                <div className="px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-gray-300 text-sm">
+                                    {userData.role}
+                                </div>
+                            </div>
+
+                            {/* Member Since (Read Only) */}
+                            <div>
+                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2.5">
+                                    <Calendar size={14} className="text-cyan-500" />
+                                    Joined On
+                                </label>
+                                <div className="px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-gray-300 text-sm">
+                                    {new Date(userData.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        {isEditing && (
+                            <div className="flex gap-4 mt-10 pt-8 border-t border-white/5">
+                                <button onClick={handleSave}
+                                    className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:opacity-90 transition-all font-bold text-sm shadow-[0_0_20px_rgba(6,182,212,0.2)] flex items-center justify-center gap-2">
+                                    <Save size={18} />
+                                    SAVE CHANGES
+                                </button>
+                                <button onClick={handleCancel}
+                                    className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-gray-400 rounded-xl transition-all font-bold text-sm border border-white/10 flex items-center justify-center gap-2">
+                                    <X size={18} />
+                                    CANCEL
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </motion.div>
         </div>
     );
 };

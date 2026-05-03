@@ -57,7 +57,7 @@ public class CloudinaryService {
     @SuppressWarnings("unchecked")
     public Map<String, Object> uploadFile(MultipartFile file) throws IOException {
         Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                "resource_type", "auto",
+                "resource_type", "raw",
                 "folder", "learning-platform/documents"));
         return uploadResult;
     }

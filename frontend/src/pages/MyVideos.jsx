@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import Navbar from '../components/Navbar';
-
+import PageWrapper from '../components/PageWrapper';
 import VideoCard from '../components/VideoCard';
 import { getTeacherVideos, getAllVideos, deleteVideo } from '../api/videoApi';
 import Swal from 'sweetalert2';
@@ -79,43 +78,38 @@ const MyVideos = () => {
     };
 
     return (
-        <div className="min-h-screen text-white relative overflow-hidden">
+        <PageWrapper className="container mx-auto px-6 pt-32 pb-12">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+            >
+                <h1 className="text-3xl font-bold mb-8 text-white">My Uploaded Videos</h1>
 
-            <Navbar />
+                {!teacherId && (
+                    <div className="mb-4 p-4 bg-yellow-600/20 border border-yellow-500/50 rounded-lg">
+                        <p className="text-yellow-300 text-sm">
+                            ⚠️ For a better experience, please <strong>log out and log back in</strong> to see only your videos.
+                        </p>
+                    </div>
+                )}
 
-            <main className="container mx-auto px-6 pt-32 pb-12">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                >
-                    <h1 className="text-3xl font-bold mb-8">My Uploaded Videos</h1>
-
-                    {!teacherId && (
-                        <div className="mb-4 p-4 bg-yellow-600/20 border border-yellow-500/50 rounded-lg">
-                            <p className="text-yellow-300 text-sm">
-                                ⚠️ For a better experience, please <strong>log out and log back in</strong> to see only your videos.
-                            </p>
-                        </div>
-                    )}
-
-                    {loading ? (
-                        <div className="text-center py-20 bg-gray-900/50 rounded-2xl border border-white/10">
-                            <p className="text-xl text-gray-400">Loading videos...</p>
-                        </div>
-                    ) : videos.length === 0 ? (
-                        <div className="text-center py-20 bg-gray-900/50 rounded-2xl border border-white/10">
-                            <p className="text-xl text-gray-400">No videos uploaded yet.</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {videos.map((video) => (
-                                <VideoCard key={video.id} video={video} onDelete={handleDelete} />
-                            ))}
-                        </div>
-                    )}
-                </motion.div>
-            </main>
-        </div>
+                {loading ? (
+                    <div className="text-center py-20 bg-gray-900/50 rounded-2xl border border-white/10">
+                        <p className="text-xl text-gray-400">Loading videos...</p>
+                    </div>
+                ) : videos.length === 0 ? (
+                    <div className="text-center py-20 bg-gray-900/50 rounded-2xl border border-white/10">
+                        <p className="text-xl text-gray-400">No videos uploaded yet.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {videos.map((video) => (
+                            <VideoCard key={video.id} video={video} onDelete={handleDelete} />
+                        ))}
+                    </div>
+                )}
+            </motion.div>
+        </PageWrapper>
     );
 };
 

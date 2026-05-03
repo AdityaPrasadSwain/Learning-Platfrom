@@ -1,164 +1,98 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { BookOpen, Video, GraduationCap, User, LogOut, LayoutDashboard, FileQuestion, Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LogOut, User } from 'lucide-react';
 import Logo from './Logo';
+
 import ThemeToggle from './ThemeToggle';
 
+// Simplified navbar — navigation has been moved to StudentLayout sidebar
 const StudentNavbar = () => {
     const navigate = useNavigate();
     const username = localStorage.getItem('username') || 'Student';
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
 
     const handleLogout = () => {
         localStorage.clear();
-        navigate('/');
+        navigate('/login');
     };
 
     return (
         <motion.nav
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            className="fixed top-0 left-0 w-full bg-white/80 dark:bg-ai-base/80 backdrop-blur-md border-b border-gray-200 dark:border-white/5 z-50 px-6 py-4 transition-colors duration-300"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="sticky top-0 w-full bg-white/5 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/10 z-50 px-6 py-3"
         >
             <div className="container mx-auto flex justify-between items-center">
-                <Link to="/dashboard" className="flex items-center gap-3">
-                    <Logo size={40} />
-                    <div className="flex flex-col">
-                        <span className="text-2xl font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-secondary">
-                            LearningStream
-                        </span>
-                        <span className="text-xs text-slate-500 dark:text-slate-400">Student Portal</span>
+                <Link to="/student/dashboard" className="flex items-center gap-3 group">
+                    <div className="p-2 bg-gradient-to-tr from-brand-primary to-brand-secondary rounded-xl group-hover:rotate-12 transition-transform duration-300 shadow-lg shadow-brand-primary/20">
+                        <Logo size={28} color="white" />
                     </div>
+                    <span className="text-xl font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-secondary">
+                        LearningStream
+                    </span>
                 </Link>
 
-                {/* Desktop Menu */}
-                <div className="hidden md:flex items-center gap-6">
-                    <Link
-                        to="/dashboard"
-                        className="text-slate-600 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white transition-colors flex items-center gap-2 font-medium"
-                    >
-                        <LayoutDashboard size={18} /> Dashboard
-                    </Link>
-                    <Link
-                        to="/courses"
-                        className="text-slate-600 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white transition-colors flex items-center gap-2 font-medium"
-                    >
-                        <BookOpen size={18} /> All Courses
-                    </Link>
-                    <Link
-                        to="/my-learning"
-                        className="text-slate-600 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white transition-colors flex items-center gap-2 font-medium"
-                    >
-                        <GraduationCap size={18} /> My Learning
-                    </Link>
-                    <Link
-                        to="/videos"
-                        className="text-slate-600 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white transition-colors flex items-center gap-2 font-medium"
-                    >
-                        <Video size={18} /> Videos
-                    </Link>
-                    <Link
-                        to="/student/quizzes"
-                        className="text-slate-600 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white transition-colors flex items-center gap-2 font-medium"
-                    >
-                        <FileQuestion size={18} /> Quizzes
-                    </Link>
-
-                    <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-200 dark:border-white/10">
-                        <ThemeToggle />
-                        <Link
-                            to="/profile"
-                            className="flex items-center gap-2 text-slate-700 dark:text-slate-200 hover:text-brand-primary transition-colors font-medium"
+                <div className="flex items-center gap-6">
+                    <ThemeToggle />
+                    
+                    {/* User Profile Dropdown */}
+                    <div className="relative">
+                        <button 
+                            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                            className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-white/10 transition-all border border-transparent hover:border-white/10 group"
                         >
-                            <User size={18} />
-                            <span className="text-sm">{username}</span>
-                        </Link>
-                        <button
-                            onClick={handleLogout}
-                            className="text-red-500 hover:text-red-400 transition-colors flex items-center gap-2 font-medium"
-                        >
-                            <LogOut size={18} /> Logout
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold shadow-lg group-hover:scale-110 transition-transform">
+                                {username.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="text-sm font-medium text-gray-300 hidden md:block">{username}</span>
                         </button>
+
+                        <AnimatePresence>
+                            {isUserMenuOpen && (
+                                <>
+                                    <div 
+                                        className="fixed inset-0 z-[-1]" 
+                                        onClick={() => setIsUserMenuOpen(false)}
+                                    />
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        className="absolute right-0 mt-2 w-56 glass-panel overflow-hidden z-50"
+                                        style={{ background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(20px)' }}
+                                    >
+                                        <div className="p-4 border-b border-white/10 bg-white/5">
+                                            <p className="text-xs text-gray-400 uppercase tracking-wider font-bold">Account</p>
+                                            <p className="text-sm font-bold text-white mt-1 truncate">{username}</p>
+                                        </div>
+                                        
+                                        <div className="p-2">
+                                            <Link 
+                                                to="/profile" 
+                                                onClick={() => setIsUserMenuOpen(false)}
+                                                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-cyan-400 rounded-xl transition-all"
+                                            >
+                                                <User size={18} />
+                                                <span>My Profile</span>
+                                            </Link>
+                                            
+                                            <button 
+                                                onClick={handleLogout}
+                                                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                                            >
+                                                <LogOut size={18} />
+                                                <span>Sign Out</span>
+                                            </button>
+                                        </div>
+                                    </motion.div>
+                                </>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </div>
-
-                {/* Mobile Menu Button */}
-                <button
-                    className="md:hidden text-slate-800 dark:text-white"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
-                    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
             </div>
-
-            {/* Mobile Menu Dropdown */}
-            {isMenuOpen && (
-                <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="md:hidden bg-white/95 dark:bg-ai-base/95 backdrop-blur-xl border-t border-gray-200 dark:border-white/5 mt-4"
-                >
-                    <div className="flex flex-col p-4 gap-4">
-                        <Link
-                            to="/dashboard"
-                            className="text-slate-600 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white transition-colors flex items-center gap-2 p-2"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            <LayoutDashboard size={18} /> Dashboard
-                        </Link>
-                        <Link
-                            to="/courses"
-                            className="text-slate-600 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white transition-colors flex items-center gap-2 p-2"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            <BookOpen size={18} /> All Courses
-                        </Link>
-                        <Link
-                            to="/my-learning"
-                            className="text-slate-600 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white transition-colors flex items-center gap-2 p-2"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            <GraduationCap size={18} /> My Learning
-                        </Link>
-                        <Link
-                            to="/videos"
-                            className="text-slate-600 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white transition-colors flex items-center gap-2 p-2"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            <Video size={18} /> Videos
-                        </Link>
-                        <Link
-                            to="/student/quizzes"
-                            className="text-slate-600 dark:text-slate-300 hover:text-brand-primary dark:hover:text-white transition-colors flex items-center gap-2 p-2"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            <FileQuestion size={18} /> Quizzes
-                        </Link>
-                        <Link
-                            to="/profile"
-                            className="flex items-center gap-2 text-slate-700 dark:text-slate-200 hover:text-brand-primary dark:hover:text-white transition-colors p-2"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            <User size={18} />
-                            <span className="text-sm">{username}</span>
-                        </Link>
-                        <button
-                            onClick={() => {
-                                handleLogout();
-                                setIsMenuOpen(false);
-                            }}
-                            className="text-red-500 hover:text-red-400 transition-colors flex items-center gap-2 p-2"
-                        >
-                            <LogOut size={18} /> Logout
-                        </button>
-                        <div className="p-2 border-t border-gray-200 dark:border-white/10 flex justify-center">
-                            <ThemeToggle />
-                        </div>
-                    </div>
-                </motion.div>
-            )}
         </motion.nav>
     );
 };

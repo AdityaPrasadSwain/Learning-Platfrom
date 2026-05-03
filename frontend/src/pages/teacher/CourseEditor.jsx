@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import ThreeBackground from '../../components/ThreeBackground';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getCourseById, updateCourse } from '../../api/courseApi';
 import {
-    createLesson,
-    updateLesson,
-    deleteLesson,
-    getLessonsByCourse,
-    uploadLessonMaterial,
-    getLessonMaterials,
-    deleteLessonMaterial
+    createLesson, updateLesson, deleteLesson,
+    getLessonsByCourse, uploadLessonMaterial,
+    getLessonMaterials, deleteLessonMaterial
 } from '../../api/lessonApi';
 import {
     Plus, Save, Trash2, Upload, FileText, Video, Image,
-    File, ArrowLeft, Edit, X, Settings
+    File, ArrowLeft, Edit, X, Settings, BookOpen,
+    CheckCircle, XCircle, GripVertical, ChevronRight
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+
+const inputClass = "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20 transition-all";
+const labelClass = "block text-sm font-semibold text-gray-300 mb-2";
 
 const CourseEditor = () => {
     const { id } = useParams();
@@ -26,46 +25,21 @@ const CourseEditor = () => {
     const [selectedLesson, setSelectedLesson] = useState(null);
     const [showLessonModal, setShowLessonModal] = useState(false);
     const [showCourseModal, setShowCourseModal] = useState(false);
-    const [lessonForm, setLessonForm] = useState({
-        title: '',
-        content: '',
-        orderIndex: 0
-    });
-    const [courseForm, setCourseForm] = useState({
-        title: '',
-        description: '',
-        category: '',
-        duration: '',
-        isPublished: false
-    });
+    const [lessonForm, setLessonForm] = useState({ title: '', content: '', orderIndex: 0 });
+    const [courseForm, setCourseForm] = useState({ title: '', description: '', category: '', duration: '', isPublished: false });
     const [materials, setMaterials] = useState([]);
     const [uploadingFile, setUploadingFile] = useState(false);
 
-    useEffect(() => {
-        fetchCourseDetails();
-        fetchLessons();
-    }, [id]);
-
-    useEffect(() => {
-        if (selectedLesson) {
-            fetchMaterials(selectedLesson.id);
-        }
-    }, [selectedLesson]);
+    useEffect(() => { fetchCourseDetails(); fetchLessons(); }, [id]);
+    useEffect(() => { if (selectedLesson) fetchMaterials(selectedLesson.id); }, [selectedLesson]);
 
     const fetchCourseDetails = async () => {
         try {
             const data = await getCourseById(id);
             setCourse(data);
-            setCourseForm({
-                title: data.title,
-                description: data.description,
-                category: data.category,
-                duration: data.duration,
-                isPublished: data.isPublished
-            });
+            setCourseForm({ title: data.title, description: data.description, category: data.category, duration: data.duration, isPublished: data.isPublished });
         } catch (error) {
-            console.error('Failed to fetch course', error);
-            Swal.fire({ title: 'Error', text: 'Failed to load course details', icon: 'error', background: '#1f2937', color: '#fff', confirmButtonColor: '#ef4444' });
+            Swal.fire({ title: 'Error', text: 'Failed to load course details', icon: 'error', background: '#0d1117', color: '#fff', confirmButtonColor: '#ef4444' });
         }
     };
 
@@ -73,86 +47,63 @@ const CourseEditor = () => {
         try {
             const data = await getLessonsByCourse(id);
             setLessons(data.sort((a, b) => a.orderIndex - b.orderIndex));
-        } catch (error) {
-            console.error('Failed to fetch lessons', error);
-        }
+        } catch (error) { console.error('Failed to fetch lessons', error); }
     };
 
     const fetchMaterials = async (lessonId) => {
-        try {
-            const data = await getLessonMaterials(lessonId);
-            setMaterials(data);
-        } catch (error) {
-            console.error('Failed to fetch materials', error);
-        }
+        try { setMaterials(await getLessonMaterials(lessonId)); }
+        catch (error) { console.error('Failed to fetch materials', error); }
     };
 
     const handleCreateLesson = () => {
-        setLessonForm({
-            title: '',
-            content: '',
-            orderIndex: lessons.length
-        });
+        setLessonForm({ title: '', content: '', orderIndex: lessons.length });
+        setSelectedLesson(null);
         setShowLessonModal(true);
     };
 
     const handleEditLesson = (lesson) => {
-        setLessonForm({
-            title: lesson.title,
-            content: lesson.content,
-            orderIndex: lesson.orderIndex
-        });
+        setLessonForm({ title: lesson.title, content: lesson.content, orderIndex: lesson.orderIndex });
         setSelectedLesson(lesson);
         setShowLessonModal(true);
     };
 
     const handleSaveLesson = async (e) => {
         e.preventDefault();
-
         try {
-            if (selectedLesson && selectedLesson.id) {
-                // Update existing lesson
+            if (selectedLesson?.id) {
                 await updateLesson(selectedLesson.id, lessonForm);
-                Swal.fire({ title: 'Success', text: 'Lesson updated successfully', icon: 'success', background: '#1f2937', color: '#fff', confirmButtonColor: '#9333ea' });
             } else {
-                // Create new lesson
                 await createLesson(id, lessonForm);
-                Swal.fire({ title: 'Success', text: 'Lesson created successfully', icon: 'success', background: '#1f2937', color: '#fff', confirmButtonColor: '#9333ea' });
             }
-
             setShowLessonModal(false);
             setSelectedLesson(null);
             fetchLessons();
+            Swal.fire({ title: 'Saved!', icon: 'success', background: '#0d1117', color: '#fff', confirmButtonColor: '#9333ea', timer: 1500 });
         } catch (error) {
-            console.error('Failed to save lesson', error);
-            Swal.fire({ title: 'Error', text: 'Failed to save lesson', icon: 'error', background: '#1f2937', color: '#fff', confirmButtonColor: '#ef4444' });
+            Swal.fire({ title: 'Error', text: 'Failed to save lesson', icon: 'error', background: '#0d1117', color: '#fff', confirmButtonColor: '#ef4444' });
         }
     };
 
     const handleDeleteLesson = async (lessonId, lessonTitle) => {
         const result = await Swal.fire({
             title: 'Delete Lesson?',
-            text: `Are you sure you want to delete "${lessonTitle}"?`,
+            text: `"${lessonTitle}" will be permanently deleted.`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!',
-            background: '#1f2937',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Delete',
+            background: '#0d1117',
             color: '#fff'
         });
-
         if (result.isConfirmed) {
             try {
                 await deleteLesson(lessonId);
-                Swal.fire({ title: 'Deleted', text: 'Lesson deleted successfully', icon: 'success', background: '#1f2937', color: '#fff', confirmButtonColor: '#9333ea' });
                 fetchLessons();
-                if (selectedLesson?.id === lessonId) {
-                    setSelectedLesson(null);
-                }
+                if (selectedLesson?.id === lessonId) setSelectedLesson(null);
+                Swal.fire({ title: 'Deleted', icon: 'success', background: '#0d1117', color: '#fff', timer: 1200 });
             } catch (error) {
-                console.error('Failed to delete lesson', error);
-                Swal.fire({ title: 'Error', text: 'Failed to delete lesson', icon: 'error', background: '#1f2937', color: '#fff', confirmButtonColor: '#ef4444' });
+                Swal.fire({ title: 'Error', text: 'Failed to delete lesson', icon: 'error', background: '#0d1117', color: '#fff' });
             }
         }
     };
@@ -160,15 +111,13 @@ const CourseEditor = () => {
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file || !selectedLesson) return;
-
         setUploadingFile(true);
         try {
             await uploadLessonMaterial(selectedLesson.id, file, file.name);
-            Swal.fire({ title: 'Success', text: 'File uploaded successfully', icon: 'success', background: '#1f2937', color: '#fff', confirmButtonColor: '#9333ea' });
             fetchMaterials(selectedLesson.id);
+            Swal.fire({ title: 'Uploaded!', icon: 'success', background: '#0d1117', color: '#fff', timer: 1200 });
         } catch (error) {
-            console.error('Failed to upload file', error);
-            Swal.fire({ title: 'Error', text: 'Failed to upload file', icon: 'error', background: '#1f2937', color: '#fff', confirmButtonColor: '#ef4444' });
+            Swal.fire({ title: 'Upload Failed', icon: 'error', background: '#0d1117', color: '#fff' });
         } finally {
             setUploadingFile(false);
             e.target.value = '';
@@ -178,24 +127,19 @@ const CourseEditor = () => {
     const handleDeleteMaterial = async (materialId, fileName) => {
         const result = await Swal.fire({
             title: 'Delete File?',
-            text: `Are you sure you want to delete "${fileName}"?`,
+            text: `"${fileName}" will be removed.`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!',
-            background: '#1f2937',
+            confirmButtonColor: '#ef4444',
+            background: '#0d1117',
             color: '#fff'
         });
-
         if (result.isConfirmed) {
             try {
                 await deleteLessonMaterial(materialId);
-                Swal.fire({ title: 'Deleted', text: 'File deleted successfully', icon: 'success', background: '#1f2937', color: '#fff', confirmButtonColor: '#9333ea' });
                 fetchMaterials(selectedLesson.id);
             } catch (error) {
-                console.error('Failed to delete material', error);
-                Swal.fire({ title: 'Error', text: 'Failed to delete file', icon: 'error', background: '#1f2937', color: '#fff', confirmButtonColor: '#ef4444' });
+                Swal.fire({ title: 'Error', text: 'Failed to delete file', icon: 'error', background: '#0d1117', color: '#fff' });
             }
         }
     };
@@ -204,353 +148,337 @@ const CourseEditor = () => {
         e.preventDefault();
         try {
             await updateCourse(id, courseForm);
-            Swal.fire({ title: 'Success', text: 'Course updated successfully', icon: 'success', background: '#1f2937', color: '#fff', confirmButtonColor: '#9333ea' });
             setShowCourseModal(false);
             fetchCourseDetails();
+            Swal.fire({ title: 'Course Updated!', icon: 'success', background: '#0d1117', color: '#fff', timer: 1500 });
         } catch (error) {
-            console.error('Failed to update course', error);
-            Swal.fire({ title: 'Error', text: 'Failed to update course', icon: 'error', background: '#1f2937', color: '#fff', confirmButtonColor: '#ef4444' });
+            Swal.fire({ title: 'Error', text: 'Failed to update course', icon: 'error', background: '#0d1117', color: '#fff' });
         }
     };
 
     const getFileIcon = (fileType) => {
+        const props = { size: 18 };
         switch (fileType) {
-            case 'VIDEO': return <Video className="w-5 h-5" />;
-            case 'IMAGE': return <Image className="w-5 h-5" />;
-            case 'PDF': return <FileText className="w-5 h-5" />;
-            default: return <File className="w-5 h-5" />;
+            case 'VIDEO': return <Video {...props} className="text-cyan-400" />;
+            case 'IMAGE': return <Image {...props} className="text-green-400" />;
+            case 'PDF': return <FileText {...props} className="text-orange-400" />;
+            default: return <File {...props} className="text-gray-400" />;
         }
     };
 
     const formatFileSize = (bytes) => {
+        if (!bytes) return '—';
         if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
-        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     };
 
     if (!course) {
         return (
-            <div className="relative min-h-screen flex items-center justify-center">
-                <ThreeBackground />
-                <div className="relative z-10 text-neon-blue text-xl font-orbitron animate-pulse">
-                    Loading Course Editor...
-                </div>
+            <div className="flex items-center justify-center h-64 text-white">
+                <div className="text-xl font-orbitron animate-pulse text-cyan-400">Loading Course Editor...</div>
             </div>
         );
     }
 
     return (
-        <div className="relative min-h-screen">
-            <ThreeBackground />
-            <Navbar />
-
-            <div className="relative z-10 pt-24 px-6 max-w-7xl mx-auto pb-12">
-                {/* Header */}
-                <div className="glass-panel p-6 mb-6">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <button
-                                onClick={() => navigate('/teacher/dashboard')}
-                                className="flex items-center space-x-2 text-neon-blue hover:text-white transition-colors mb-4"
-                            >
-                                <ArrowLeft className="w-5 h-5" />
-                                <span>Back to Dashboard</span>
-                            </button>
-                            <h1 className="text-3xl font-orbitron neon-text mb-2">{course.title}</h1>
-                            <p className="text-gray-400">{course.description}</p>
-                        </div>
-                        <button
-                            onClick={() => setShowCourseModal(true)}
-                            className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors border border-gray-600"
-                        >
-                            <Settings className="w-4 h-4" />
-                            <span>Edit Course</span>
-                        </button>
-                    </div>
+        <div className="text-white space-y-5">
+            {/* Header */}
+            <div className="flex items-start justify-between">
+                <div>
+                    <button
+                        onClick={() => navigate('/teacher/my-courses')}
+                        className="flex items-center gap-2 text-gray-400 hover:text-white mb-3 transition group text-sm"
+                    >
+                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                        Back to My Courses
+                    </button>
+                    <h1 className="text-2xl font-bold font-orbitron text-white">{course.title}</h1>
+                    <p className="text-gray-400 text-sm mt-1">{course.description}</p>
                 </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Lessons List */}
-                    <div className="lg:col-span-1">
-                        <div className="glass-panel p-6">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl font-orbitron">Lessons</h2>
-                                <button
-                                    onClick={handleCreateLesson}
-                                    className="flex items-center space-x-1 bg-neon-blue/20 hover:bg-neon-blue/40 border border-neon-blue text-white px-3 py-2 rounded transition-all"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                    <span>Add</span>
-                                </button>
-                            </div>
-
-                            <div className="space-y-2">
-                                {lessons.map((lesson, index) => (
-                                    <div
-                                        key={lesson.id}
-                                        className={`p-3 rounded border cursor-pointer transition-all ${selectedLesson?.id === lesson.id
-                                            ? 'bg-neon-blue/20 border-neon-blue'
-                                            : 'bg-white/5 border-white/10 hover:bg-white/10'
-                                            }`}
-                                        onClick={() => setSelectedLesson(lesson)}
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-2">
-                                                <span className="text-neon-blue font-bold">{index + 1}</span>
-                                                <span className="text-sm">{lesson.title}</span>
-                                            </div>
-                                            <div className="flex space-x-1">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleEditLesson(lesson);
-                                                    }}
-                                                    className="text-neon-blue hover:text-white p-1"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleDeleteLesson(lesson.id, lesson.title);
-                                                    }}
-                                                    className="text-red-400 hover:text-red-300 p-1"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                                {lessons.length === 0 && (
-                                    <div className="text-center py-8 text-gray-500">
-                                        <p>No lessons yet</p>
-                                        <p className="text-sm">Click "Add" to create your first lesson</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Lesson Content & Materials */}
-                    <div className="lg:col-span-2">
-                        {selectedLesson ? (
-                            <div className="space-y-6">
-                                {/* Lesson Content */}
-                                <div className="glass-panel p-6">
-                                    <h2 className="text-2xl font-orbitron mb-4">{selectedLesson.title}</h2>
-                                    <div className="prose prose-invert max-w-none">
-                                        <p className="text-gray-300 whitespace-pre-wrap">{selectedLesson.content || 'No content yet'}</p>
-                                    </div>
-                                </div>
-
-                                {/* Course Materials */}
-                                <div className="glass-panel p-6">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h3 className="text-xl font-orbitron">Course Materials</h3>
-                                        <label className="flex items-center space-x-2 bg-neon-purple/20 hover:bg-neon-purple/40 border border-neon-purple text-white px-4 py-2 rounded cursor-pointer transition-all">
-                                            <Upload className="w-4 h-4" />
-                                            <span>{uploadingFile ? 'Uploading...' : 'Upload File'}</span>
-                                            <input
-                                                type="file"
-                                                onChange={handleFileUpload}
-                                                className="hidden"
-                                                disabled={uploadingFile}
-                                            />
-                                        </label>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        {materials.map((material) => (
-                                            <div
-                                                key={material.id}
-                                                className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded hover:bg-white/10 transition-colors"
-                                            >
-                                                <div className="flex items-center space-x-3">
-                                                    <div className="text-neon-blue">
-                                                        {getFileIcon(material.fileType)}
-                                                    </div>
-                                                    <div>
-                                                        <a
-                                                            href={`http://localhost:8089${material.fileUrl}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-sm font-medium hover:text-neon-blue transition-colors"
-                                                        >
-                                                            {material.fileName}
-                                                        </a>
-                                                        <p className="text-xs text-gray-400">
-                                                            {material.fileType} • {formatFileSize(material.fileSize)}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    onClick={() => handleDeleteMaterial(material.id, material.fileName)}
-                                                    className="text-red-400 hover:text-red-300 p-2"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        ))}
-                                        {materials.length === 0 && (
-                                            <div className="text-center py-8 text-gray-500">
-                                                <Upload className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                                                <p>No materials uploaded yet</p>
-                                                <p className="text-sm">Upload PDFs, videos, images, or documents</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="glass-panel p-12 text-center">
-                                <FileText className="w-16 h-16 mx-auto mb-4 opacity-50 text-neon-blue" />
-                                <p className="text-xl text-gray-400">Select a lesson to view and edit content</p>
-                                <p className="text-sm text-gray-500 mt-2">Or create a new lesson to get started</p>
-                            </div>
-                        )}
-                    </div>
+                <div className="flex items-center gap-3 shrink-0">
+                    <span className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${course.isPublished ? 'bg-green-400/10 text-green-400 border-green-400/30' : 'bg-yellow-400/10 text-yellow-400 border-yellow-400/30'}`}>
+                        {course.isPublished ? <CheckCircle size={12} /> : <XCircle size={12} />}
+                        {course.isPublished ? 'Published' : 'Draft'}
+                    </span>
+                    <button
+                        onClick={() => setShowCourseModal(true)}
+                        className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 px-4 py-2 rounded-xl transition-all text-sm font-medium"
+                    >
+                        <Settings size={15} /> Edit Info
+                    </button>
                 </div>
             </div>
 
-            {/* Course Modal */}
-            {showCourseModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-                    <div className="glass-panel p-8 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-orbitron neon-text">Edit Course Details</h2>
-                            <button onClick={() => setShowCourseModal(false)} className="text-gray-400 hover:text-white">
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-                        <form onSubmit={handleUpdateCourse} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Course Title</label>
-                                <input
-                                    type="text"
-                                    value={courseForm.title}
-                                    onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
-                                    className="w-full bg-black/30 border border-gray-600 rounded p-3 focus:border-neon-blue focus:outline-none text-white"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Description</label>
-                                <textarea
-                                    value={courseForm.description}
-                                    onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
-                                    className="w-full bg-black/30 border border-gray-600 rounded p-3 focus:border-neon-blue focus:outline-none text-white h-32"
-                                    required
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">Category</label>
-                                    <input
-                                        type="text"
-                                        value={courseForm.category}
-                                        onChange={(e) => setCourseForm({ ...courseForm, category: e.target.value })}
-                                        className="w-full bg-black/30 border border-gray-600 rounded p-3 focus:border-neon-blue focus:outline-none text-white"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">Duration (mins)</label>
-                                    <input
-                                        type="number"
-                                        value={courseForm.duration}
-                                        onChange={(e) => setCourseForm({ ...courseForm, duration: e.target.value })}
-                                        className="w-full bg-black/30 border border-gray-600 rounded p-3 focus:border-neon-blue focus:outline-none text-white"
-                                    />
-                                </div>
-                            </div>
-                            <button
-                                type="submit"
-                                className="w-full bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity"
-                            >
-                                Update Course
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Lesson Modal */}
-            {showLessonModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-                    <div className="glass-panel p-8 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-orbitron neon-text">
-                                {selectedLesson?.id ? 'Edit Lesson' : 'Create New Lesson'}
+            {/* Main Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                {/* Lessons Sidebar */}
+                <div className="lg:col-span-1">
+                    <div className="glass-panel overflow-hidden">
+                        <div className="flex justify-between items-center p-4 border-b border-white/10">
+                            <h2 className="font-bold text-white flex items-center gap-2">
+                                <BookOpen size={16} className="text-cyan-400" /> Lessons
                             </h2>
                             <button
-                                onClick={() => {
-                                    setShowLessonModal(false);
-                                    setSelectedLesson(null);
-                                }}
-                                className="text-gray-400 hover:text-white"
+                                onClick={handleCreateLesson}
+                                className="flex items-center gap-1.5 bg-cyan-400/10 hover:bg-cyan-400/20 border border-cyan-400/30 text-cyan-400 px-3 py-1.5 rounded-lg text-sm transition-all"
                             >
-                                <X className="w-6 h-6" />
+                                <Plus size={15} /> Add
                             </button>
                         </div>
 
-                        <form onSubmit={handleSaveLesson} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Lesson Title *</label>
-                                <input
-                                    type="text"
-                                    value={lessonForm.title}
-                                    onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
-                                    className="w-full bg-black/30 border border-gray-600 rounded p-3 focus:border-neon-blue focus:outline-none text-white"
-                                    placeholder="e.g., Introduction to the Topic"
-                                    required
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Content *</label>
-                                <textarea
-                                    value={lessonForm.content}
-                                    onChange={(e) => setLessonForm({ ...lessonForm, content: e.target.value })}
-                                    className="w-full bg-black/30 border border-gray-600 rounded p-3 focus:border-neon-blue focus:outline-none text-white h-64"
-                                    placeholder="Write your lesson content here..."
-                                    required
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Order</label>
-                                <input
-                                    type="number"
-                                    value={lessonForm.orderIndex}
-                                    onChange={(e) => setLessonForm({ ...lessonForm, orderIndex: parseInt(e.target.value) })}
-                                    className="w-full bg-black/30 border border-gray-600 rounded p-3 focus:border-neon-blue focus:outline-none text-white"
-                                    min="0"
-                                />
-                            </div>
-
-                            <div className="flex space-x-4 pt-4">
-                                <button
-                                    type="submit"
-                                    className="flex-1 flex items-center justify-center space-x-2 bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity"
-                                >
-                                    <Save className="w-5 h-5" />
-                                    <span>Save Lesson</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setShowLessonModal(false);
-                                        setSelectedLesson(null);
-                                    }}
-                                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
+                        <div className="p-2">
+                            {lessons.length === 0 ? (
+                                <div className="text-center py-10 text-gray-500">
+                                    <BookOpen size={32} className="mx-auto mb-2 opacity-30" />
+                                    <p className="text-sm">No lessons yet</p>
+                                    <p className="text-xs mt-1">Click "Add" to create your first</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-1">
+                                    {lessons.map((lesson, index) => (
+                                        <div
+                                            key={lesson.id}
+                                            onClick={() => setSelectedLesson(lesson)}
+                                            className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all group ${selectedLesson?.id === lesson.id
+                                                ? 'bg-cyan-400/10 border border-cyan-400/30'
+                                                : 'hover:bg-white/5 border border-transparent'
+                                                }`}
+                                        >
+                                            <div className="flex items-center gap-2.5 min-w-0">
+                                                <span className={`text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full shrink-0 ${selectedLesson?.id === lesson.id ? 'bg-cyan-400 text-black' : 'bg-white/10 text-gray-400'}`}>
+                                                    {index + 1}
+                                                </span>
+                                                <span className="text-sm truncate text-gray-200">{lesson.title}</span>
+                                            </div>
+                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleEditLesson(lesson); }}
+                                                    className="p-1.5 text-purple-400 hover:bg-purple-400/10 rounded-lg transition-all"
+                                                >
+                                                    <Edit size={13} />
+                                                </button>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleDeleteLesson(lesson.id, lesson.title); }}
+                                                    className="p-1.5 text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+                                                >
+                                                    <Trash2 size={13} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            )}
+
+                {/* Content Area */}
+                <div className="lg:col-span-2 space-y-4">
+                    {selectedLesson ? (
+                        <>
+                            {/* Lesson Content */}
+                            <motion.div
+                                key={selectedLesson.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="glass-panel p-6"
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="text-xl font-bold text-white">{selectedLesson.title}</h2>
+                                    <button
+                                        onClick={() => handleEditLesson(selectedLesson)}
+                                        className="flex items-center gap-1.5 text-sm text-purple-400 hover:text-purple-300 px-3 py-1.5 rounded-lg border border-purple-400/20 hover:bg-purple-400/10 transition-all"
+                                    >
+                                        <Edit size={14} /> Edit
+                                    </button>
+                                </div>
+                                <div className="bg-white/3 rounded-xl p-4 border border-white/5">
+                                    <p className="text-gray-300 whitespace-pre-wrap text-sm leading-relaxed">
+                                        {selectedLesson.content || 'No content yet. Click "Edit" to add lesson content.'}
+                                    </p>
+                                </div>
+                            </motion.div>
+
+                            {/* Materials */}
+                            <div className="glass-panel overflow-hidden">
+                                <div className="flex justify-between items-center p-4 border-b border-white/10">
+                                    <h3 className="font-bold flex items-center gap-2">
+                                        <Upload size={15} className="text-purple-400" /> Course Materials
+                                    </h3>
+                                    <label className={`flex items-center gap-2 cursor-pointer text-sm px-3 py-1.5 rounded-lg border transition-all ${uploadingFile ? 'opacity-50 cursor-not-allowed bg-white/5 border-white/10 text-gray-400' : 'bg-purple-400/10 border-purple-400/30 text-purple-400 hover:bg-purple-400/20'}`}>
+                                        <Upload size={14} />
+                                        {uploadingFile ? 'Uploading...' : 'Upload File'}
+                                        <input type="file" onChange={handleFileUpload} className="hidden" disabled={uploadingFile} />
+                                    </label>
+                                </div>
+                                <div className="p-3">
+                                    {materials.length === 0 ? (
+                                        <div className="text-center py-8 text-gray-500">
+                                            <Upload size={28} className="mx-auto mb-2 opacity-30" />
+                                            <p className="text-sm">No materials yet</p>
+                                            <p className="text-xs">Upload PDFs, videos, images or docs</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            {materials.map((material) => (
+                                                <div key={material.id} className="flex items-center justify-between p-3 bg-white/3 border border-white/5 rounded-xl hover:bg-white/8 transition-colors group">
+                                                    <div className="flex items-center gap-3 min-w-0">
+                                                        {getFileIcon(material.fileType)}
+                                                        <div className="min-w-0">
+                                                            <a
+                                                                href={`http://localhost:8089${material.fileUrl}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-sm font-medium text-white hover:text-cyan-400 transition-colors truncate block"
+                                                            >
+                                                                {material.fileName}
+                                                            </a>
+                                                            <p className="text-xs text-gray-500">{material.fileType} • {formatFileSize(material.fileSize)}</p>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleDeleteMaterial(material.id, material.fileName)}
+                                                        className="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                                    >
+                                                        <Trash2 size={15} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="glass-panel p-16 text-center">
+                            <ChevronRight size={48} className="mx-auto mb-4 opacity-20 text-cyan-400" />
+                            <p className="text-lg text-gray-400">Select a lesson to view content</p>
+                            <p className="text-sm text-gray-500 mt-1">Or create a new lesson to get started</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Course Edit Modal */}
+            <AnimatePresence>
+                {showCourseModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95 }}
+                            className="glass-panel p-7 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold font-orbitron text-white">Edit Course Info</h2>
+                                <button onClick={() => setShowCourseModal(false)} className="text-gray-400 hover:text-white p-1 hover:bg-white/10 rounded-lg transition">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <form onSubmit={handleUpdateCourse} className="space-y-4">
+                                <div>
+                                    <label className={labelClass}>Course Title</label>
+                                    <input type="text" value={courseForm.title}
+                                        onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
+                                        className={inputClass} required />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Description</label>
+                                    <textarea value={courseForm.description} rows={4}
+                                        onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
+                                        className={inputClass + " resize-none"} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className={labelClass}>Category</label>
+                                        <input type="text" value={courseForm.category}
+                                            onChange={(e) => setCourseForm({ ...courseForm, category: e.target.value })}
+                                            className={inputClass} />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>Duration (mins)</label>
+                                        <input type="number" value={courseForm.duration}
+                                            onChange={(e) => setCourseForm({ ...courseForm, duration: e.target.value })}
+                                            className={inputClass} />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 py-2">
+                                    <button type="button"
+                                        onClick={() => setCourseForm(p => ({ ...p, isPublished: !p.isPublished }))}
+                                        className={`relative w-12 h-6 rounded-full transition-colors ${courseForm.isPublished ? 'bg-green-500' : 'bg-gray-700'}`}
+                                    >
+                                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${courseForm.isPublished ? 'translate-x-6' : 'translate-x-0'}`} />
+                                    </button>
+                                    <span className="text-sm text-gray-300">{courseForm.isPublished ? 'Published' : 'Draft (not visible to students)'}</span>
+                                </div>
+                                <button type="submit"
+                                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold py-3 rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                                    <Save size={18} /> Save Changes
+                                </button>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Lesson Modal */}
+            <AnimatePresence>
+                {showLessonModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95 }}
+                            className="glass-panel p-7 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold font-orbitron text-white">
+                                    {selectedLesson?.id ? 'Edit Lesson' : 'New Lesson'}
+                                </h2>
+                                <button onClick={() => { setShowLessonModal(false); setSelectedLesson(null); }}
+                                    className="text-gray-400 hover:text-white p-1 hover:bg-white/10 rounded-lg transition">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <form onSubmit={handleSaveLesson} className="space-y-4">
+                                <div>
+                                    <label className={labelClass}>Lesson Title *</label>
+                                    <input type="text" value={lessonForm.title}
+                                        onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
+                                        className={inputClass} placeholder="e.g., Introduction to the Topic" required />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Content *</label>
+                                    <textarea value={lessonForm.content} rows={8}
+                                        onChange={(e) => setLessonForm({ ...lessonForm, content: e.target.value })}
+                                        className={inputClass + " resize-none"}
+                                        placeholder="Write your lesson content here..." required />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Order</label>
+                                    <input type="number" value={lessonForm.orderIndex} min="0"
+                                        onChange={(e) => setLessonForm({ ...lessonForm, orderIndex: parseInt(e.target.value) })}
+                                        className={inputClass} />
+                                </div>
+                                <div className="flex gap-3 pt-2">
+                                    <button type="submit"
+                                        className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+                                        <Save size={18} /> Save Lesson
+                                    </button>
+                                    <button type="button"
+                                        onClick={() => { setShowLessonModal(false); setSelectedLesson(null); }}
+                                        className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-bold py-3 rounded-xl transition-all">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

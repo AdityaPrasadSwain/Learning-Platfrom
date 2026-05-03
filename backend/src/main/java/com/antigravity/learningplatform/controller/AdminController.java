@@ -3,6 +3,7 @@ package com.antigravity.learningplatform.controller;
 import com.antigravity.learningplatform.dto.DashboardStatsDTO;
 import com.antigravity.learningplatform.entity.AuditLog;
 import com.antigravity.learningplatform.entity.Course;
+import com.antigravity.learningplatform.entity.Role;
 import com.antigravity.learningplatform.entity.User;
 import com.antigravity.learningplatform.service.AdminService;
 import com.antigravity.learningplatform.service.TeacherApplicationService;
@@ -22,67 +23,123 @@ public class AdminController {
     private final TeacherApplicationService applicationService;
 
     @GetMapping("/applications")
-    public ResponseEntity<List<com.antigravity.learningplatform.entity.TeacherApplication>> getPendingApplications() {
-        return ResponseEntity.ok(applicationService.getPendingApplications());
+    public ResponseEntity<?> getPendingApplications() {
+        try {
+            return ResponseEntity.ok(applicationService.getPendingApplications());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error fetching applications: " + e.getMessage());
+        }
     }
 
     @PostMapping("/applications/{id}/approve")
-    public ResponseEntity<Void> approveApplication(@PathVariable Long id) {
-        applicationService.approveApplication(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> approveApplication(@PathVariable Long id) {
+        try {
+            applicationService.approveApplication(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error approving application: " + e.getMessage());
+        }
     }
 
     @PostMapping("/applications/{id}/reject")
-    public ResponseEntity<Void> rejectApplication(@PathVariable Long id, @RequestBody Map<String, String> payload) {
-        String reason = payload.get("reason");
-        applicationService.rejectApplication(id, reason);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> rejectApplication(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        try {
+            String reason = payload.get("reason");
+            applicationService.rejectApplication(id, reason);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error rejecting application: " + e.getMessage());
+        }
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<DashboardStatsDTO> getDashboardStats() {
-        return ResponseEntity.ok(adminService.getDashboardStats());
+    public ResponseEntity<?> getDashboardStats() {
+        try {
+            return ResponseEntity.ok(adminService.getDashboardStats());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error fetching dashboard stats: " + e.getMessage());
+        }
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(adminService.getAllUsers());
+    public ResponseEntity<?> getAllUsers(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Role role,
+            @RequestParam(required = false) Boolean isSuspended,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        try {
+            return ResponseEntity.ok(adminService.getAllUsers(search, role, isSuspended, page, size, sortBy, direction));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error fetching users: " + e.getMessage());
+        }
     }
 
     @PutMapping("/users/{id}/suspend")
-    public ResponseEntity<User> suspendUser(@PathVariable Long id, @RequestBody Map<String, String> payload) {
-        String reason = payload.get("reason");
-        return ResponseEntity.ok(adminService.suspendUser(id, reason));
+    public ResponseEntity<?> suspendUser(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        try {
+            String reason = payload.get("reason");
+            return ResponseEntity.ok(adminService.suspendUser(id, reason));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error suspending user: " + e.getMessage());
+        }
     }
 
     @PutMapping("/users/{id}/activate")
-    public ResponseEntity<User> activateUser(@PathVariable Long id) {
-        return ResponseEntity.ok(adminService.activateUser(id));
+    public ResponseEntity<?> activateUser(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(adminService.activateUser(id));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error activating user: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        adminService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            adminService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error deleting user: " + e.getMessage());
+        }
     }
 
     @GetMapping("/courses")
-    public ResponseEntity<List<Course>> getAllCourses() {
-        return ResponseEntity.ok(adminService.getAllCourses());
+    public ResponseEntity<?> getAllCourses() {
+        try {
+            return ResponseEntity.ok(adminService.getAllCourses());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error fetching courses: " + e.getMessage());
+        }
     }
 
     @PutMapping("/courses/{id}/approve")
-    public ResponseEntity<Course> approveCourse(@PathVariable Long id) {
-        return ResponseEntity.ok(adminService.approveCourse(id));
+    public ResponseEntity<?> approveCourse(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(adminService.approveCourse(id));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error approving course: " + e.getMessage());
+        }
     }
 
     @PutMapping("/courses/{id}/reject")
-    public ResponseEntity<Course> rejectCourse(@PathVariable Long id) {
-        return ResponseEntity.ok(adminService.rejectCourse(id));
+    public ResponseEntity<?> rejectCourse(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(adminService.rejectCourse(id));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error rejecting course: " + e.getMessage());
+        }
     }
 
     @GetMapping("/audit-logs")
-    public ResponseEntity<List<AuditLog>> getAuditLogs() {
-        return ResponseEntity.ok(adminService.getAllAuditLogs());
+    public ResponseEntity<?> getAuditLogs() {
+        try {
+            return ResponseEntity.ok(adminService.getAllAuditLogs());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error fetching audit logs: " + e.getMessage());
+        }
     }
 }

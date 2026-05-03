@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../../components/Navbar';
-import ThreeBackground from '../../components/ThreeBackground';
 import { Search, Eye, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllCoursesAdmin, approveCourse, rejectCourse } from '../../api/adminApi';
@@ -105,9 +103,7 @@ const CourseManagement = () => {
 
     if (loading) {
         return (
-            <div className="relative min-h-screen flex items-center justify-center text-white">
-                <ThreeBackground />
-                <Navbar />
+            <div className="relative h-full flex items-center justify-center text-white">
                 <div className="relative z-10 text-2xl font-orbitron animate-pulse">Loading courses...</div>
             </div>
         );
@@ -115,10 +111,8 @@ const CourseManagement = () => {
 
     if (error) {
         return (
-            <div className="relative min-h-screen text-white">
-                <ThreeBackground />
-                <Navbar />
-                <div className="relative z-10 pt-24 px-6 max-w-7xl mx-auto text-center">
+            <div className="relative h-full text-white">
+                <div className="relative z-10 px-6 max-w-7xl mx-auto text-center">
                     <h2 className="text-2xl text-red-500 font-bold mb-4">Error Loading Courses</h2>
                     <p className="text-gray-300 mb-4">{error}</p>
                     <button
@@ -133,10 +127,8 @@ const CourseManagement = () => {
     }
 
     return (
-        <div className="relative min-h-screen text-white">
-            <ThreeBackground />
-            <Navbar />
-            <div className="relative z-10 pt-24 px-6 max-w-7xl mx-auto space-y-6 pb-12">
+        <div className="relative h-full text-white">
+            <div className="relative z-10 px-6 max-w-7xl mx-auto space-y-6 pb-12">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-4">
                         <Link

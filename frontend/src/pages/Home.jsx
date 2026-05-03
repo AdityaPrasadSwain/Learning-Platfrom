@@ -1,25 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import PageWrapper from '../components/PageWrapper';
 import { Activity, Brain, Shield, ArrowRight, Zap, CheckCircle } from 'lucide-react';
+import Features from './Features';
+import Team from './Team';
+import FAQ from './FAQ';
 
 const Home = () => {
     return (
-        <div className="relative min-h-screen overflow-hidden flex flex-col bg-ai-soft dark:bg-ai-base transition-colors duration-300">
-            {/* Background Gradients */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-brand-primary/20 rounded-full blur-[100px] animate-pulse-soft" />
-                <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] bg-brand-secondary/20 rounded-full blur-[100px] animate-pulse-soft delay-1000" />
-                <div className="absolute bottom-[0%] left-[20%] w-[30%] h-[30%] bg-brand-accent/10 rounded-full blur-[80px] animate-pulse-soft delay-2000" />
-            </div>
-
-            <Navbar />
-
-            <main className="flex-1 relative z-10 flex items-center justify-center pt-20 px-6">
+        <div className="text-white">
+            {/* Hero Section */}
+            <section id="home" className="flex items-center justify-center pt-10 pb-20 px-6 min-h-[90vh]">
                 <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
                     {/* Left Content */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
@@ -123,11 +116,12 @@ const Home = () => {
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] border border-brand-secondary/20 rounded-full animate-spin-slow [--tw-rotate:180deg] z-0" />
                     </motion.div>
                 </div>
-            </main>
+            </section>
 
-            <div className="relative z-10">
-                <Footer />
-            </div>
+            {/* Added Sections */}
+            <Features />
+            <Team />
+            <FAQ />
         </div>
     );
 };

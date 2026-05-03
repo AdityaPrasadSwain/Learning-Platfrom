@@ -41,8 +41,8 @@ const StartTeaching = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
             </div>
         );
     }
@@ -72,25 +72,25 @@ const StartTeaching = () => {
 
         const getStepColor = (index, stepStatus) => {
             if (index === 3) {
-                if (status === 'REJECTED') return 'text-red-500 border-red-500 bg-red-500/10';
-                if (status === 'APPROVED') return 'text-green-500 border-green-500 bg-green-500/10';
-                return 'text-gray-500 border-gray-600';
+                if (status === 'REJECTED') return 'text-red-500 border-red-500 bg-red-50 dark:bg-red-500/10';
+                if (status === 'APPROVED') return 'text-green-500 border-green-500 bg-green-50 dark:bg-green-500/10';
+                return 'text-gray-400 border-gray-300 dark:border-gray-600';
             }
 
-            if (stepStatus === 'completed') return 'text-green-500 border-green-500 bg-green-500/10';
-            if (stepStatus === 'active') return 'text-blue-400 border-blue-400 bg-blue-400/10 animate-pulse';
-            return 'text-gray-600 border-gray-700';
+            if (stepStatus === 'completed') return 'text-green-500 border-green-500 bg-green-50 dark:bg-green-500/10';
+            if (stepStatus === 'active') return 'text-brand-primary border-brand-primary bg-brand-primary/10 animate-pulse';
+            return 'text-gray-400 border-gray-300 dark:text-gray-600 dark:border-gray-700';
         };
 
         return (
             <div className="w-full py-8">
                 <div className="flex items-center justify-between relative px-4">
-                    {/* Connecting Line */}
-                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-800 -z-10" />
+                    {/* Connecting Line (Inactive Background) */}
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 dark:bg-gray-800 -z-10" />
 
-                    {/* Progress Line */}
+                    {/* Progress Line (Active Gradient) */}
                     <div
-                        className={`absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-gradient-to-r from-green-500 to-blue-500 -z-10 transition-all duration-1000`}
+                        className={`absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-gradient-to-r from-green-500 to-brand-primary -z-10 transition-all duration-1000`}
                         style={{
                             width: status === 'PENDING' ? '66%' : '100%'
                         }}
@@ -102,11 +102,11 @@ const StartTeaching = () => {
                         const isRejected = isLast && status === 'REJECTED';
 
                         return (
-                            <div key={step.id} className="flex flex-col items-center group relative bg-gray-900 px-2">
-                                <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center mb-2 z-10 bg-gray-900 transition-all duration-300 ${getStepColor(index, stepStatus)}`}>
+                            <div key={step.id} className="flex flex-col items-center group relative bg-gray-50 dark:bg-gray-900 px-2 rounded-full">
+                                <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center mb-2 z-10 bg-white dark:bg-gray-900 transition-all duration-300 ${getStepColor(index, stepStatus)}`}>
                                     <step.icon size={20} />
                                 </div>
-                                <span className={`text-xs md:text-sm font-medium ${stepStatus === 'pending' ? 'text-gray-500' : 'text-gray-200'} ${isRejected ? 'text-red-400' : ''}`}>
+                                <span className={`text-xs md:text-sm font-medium ${stepStatus === 'pending' ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'} ${isRejected ? 'text-red-500' : ''}`}>
                                     {isLast && status === 'APPROVED' ? 'Approved' : isLast && status === 'REJECTED' ? 'Rejected' : step.label}
                                 </span>
                             </div>
@@ -114,28 +114,28 @@ const StartTeaching = () => {
                     })}
                 </div>
 
-                {/* Status Message */}
-                <div className="mt-12 text-center bg-white/5 rounded-xl p-6 border border-white/10">
+                {/* Status Message Box */}
+                <div className="mt-12 text-center bg-white dark:bg-white/5 rounded-xl p-6 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
                     {status === 'PENDING' && (
                         <>
-                            <h3 className="text-xl font-bold text-blue-400 mb-2">Application Under Review</h3>
-                            <p className="text-gray-400">Our team is currently reviewing your profile. This usually takes 24-48 hours.</p>
+                            <h3 className="text-xl font-bold text-brand-primary mb-2">Application Under Review</h3>
+                            <p className="text-gray-600 dark:text-gray-400">Our team is currently reviewing your profile. This usually takes 24-48 hours.</p>
                         </>
                     )}
                     {status === 'APPROVED' && (
                         <>
-                            <h3 className="text-xl font-bold text-green-400 mb-2">Congratulations! 🎉</h3>
-                            <p className="text-gray-400">Your application has been approved. You are now an official instructor.</p>
+                            <h3 className="text-xl font-bold text-green-500 mb-2">Congratulations! 🎉</h3>
+                            <p className="text-gray-600 dark:text-gray-400">Your application has been approved. You are now an official instructor.</p>
                         </>
                     )}
                     {status === 'REJECTED' && (
                         <>
                             <h3 className="text-xl font-bold text-red-500 mb-2">Application Rejected</h3>
-                            <p className="text-gray-400 mb-4">Unfortunately, your application was not successful at this time.</p>
+                            <p className="text-gray-600 dark:text-gray-400 mb-4">Unfortunately, your application was not successful at this time.</p>
                             {rejectionReason && (
-                                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 max-w-md mx-auto">
-                                    <span className="text-red-300 font-medium block mb-1">Reason:</span>
-                                    <p className="text-red-200 text-sm">{rejectionReason}</p>
+                                <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg p-4 max-w-md mx-auto">
+                                    <span className="text-red-600 dark:text-red-300 font-medium block mb-1">Reason:</span>
+                                    <p className="text-red-500 dark:text-red-200 text-sm">{rejectionReason}</p>
                                 </div>
                             )}
                         </>
@@ -148,13 +148,13 @@ const StartTeaching = () => {
     // Main Component Logic Updates
     if (applicationStatus?.status) {
         return (
-            <div className="min-h-screen text-white relative overflow-hidden flex items-center justify-center">
+            <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
 
                 <TeacherRegistrationNavbar />
-                <div className="z-10 bg-gray-900/80 backdrop-blur-xl p-8 rounded-2xl border border-white/10 text-center w-full max-w-4xl shadow-2xl mt-20">
+                <div className="z-10 bg-white dark:bg-gray-900/80 backdrop-blur-xl p-8 rounded-2xl border border-gray-200 dark:border-white/10 text-center w-full max-w-4xl shadow-xl dark:shadow-2xl mt-20 transition-all duration-300">
                     <div className="mb-6 flex items-center justify-center gap-2">
-                        <span className="text-xs uppercase tracking-widest text-gray-500">Tracking ID:</span>
-                        <span className="font-mono text-purple-400">#APP-{localStorage.getItem('userId') || '0000'}</span>
+                        <span className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">Tracking ID:</span>
+                        <span className="font-mono text-brand-primary dark:text-purple-400 font-bold">#APP-{localStorage.getItem('userId') || '0000'}</span>
                     </div>
 
                     <ApplicationTracker
@@ -180,7 +180,7 @@ const StartTeaching = () => {
                         ) : (
                             <button
                                 onClick={() => window.location.reload()}
-                                className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
+                                className="bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 text-gray-700 dark:text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
                             >
                                 <Clock size={16} /> Refresh Status
                             </button>
@@ -233,45 +233,45 @@ const StartTeaching = () => {
     };
 
     return (
-        <div className="min-h-screen text-white relative overflow-hidden">
+        <div className="min-h-screen relative overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
 
             <TeacherRegistrationNavbar />
             <div className="container mx-auto px-6 pt-32 flex justify-center">
-                <div className="w-full max-w-lg bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-white/10">
-                    <h2 className="text-3xl font-bold mb-6 text-center text-purple-400">Teacher Application</h2>
+                <div className="w-full max-w-lg bg-white dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xl dark:shadow-none transition-all duration-300">
+                    <h2 className="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-purple-400">Teacher Application</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm mb-1">Resume (PDF/DOC)</label>
+                            <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">Resume (PDF/DOC)</label>
                             <input
                                 type="file"
                                 accept=".pdf,.doc,.docx"
                                 onChange={(e) => setResumeFile(e.target.files[0])}
-                                className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-500/10 file:text-purple-400 hover:file:bg-purple-500/20"
+                                className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl p-3 text-gray-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-primary/10 file:text-brand-primary hover:file:bg-brand-primary/20 transition-colors"
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-sm mb-1">Years of Experience</label>
+                            <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">Years of Experience</label>
                             <input
                                 type="text"
                                 value={experience}
                                 onChange={(e) => setExperience(e.target.value)}
-                                className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+                                className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl p-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all"
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-sm mb-1">Bio / Motivation</label>
+                            <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">Bio / Motivation</label>
                             <textarea
                                 value={bio}
                                 onChange={(e) => setBio(e.target.value)}
-                                className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white h-32"
+                                className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl p-3 text-gray-900 dark:text-white h-32 focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all"
                                 required
                             />
                         </div>
                         <button
                             type="submit"
-                            className="w-full bg-purple-600 hover:bg-purple-700 py-3 rounded font-bold"
+                            className="w-full bg-brand-primary hover:bg-brand-secondary text-white py-3.5 rounded-xl font-bold shadow-lg shadow-brand-primary/20 hover:scale-[1.02] transition-all duration-300"
                             disabled={!resumeFile || !experience || !bio}
                         >
                             Submit Application

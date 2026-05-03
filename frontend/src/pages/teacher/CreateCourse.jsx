@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Save } from 'lucide-react';
+import { Save, ArrowLeft, BookOpen } from 'lucide-react';
 import { createCourse } from '../../api/courseApi';
 import { showSuccess, showError, showLoading } from '../../utils/sweetAlert';
 import Swal from 'sweetalert2';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
 
 
 
@@ -50,93 +49,70 @@ const CreateCourse = () => {
     };
 
     return (
-        <div className="min-h-screen text-white relative overflow-hidden">
-
-            <Navbar />
-            <main className="container mx-auto px-6 pt-32 pb-12 flex justify-center">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="w-full max-w-3xl bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl"
-                >
-                    <h1 className="text-3xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
-                        Create New Course
-                    </h1>
+        <div className="text-white max-w-2xl mx-auto">
+            <button
+                onClick={() => navigate('/teacher/my-courses')}
+                className="flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition group"
+            >
+                <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                Back to My Courses
+            </button>
+            <div className="flex items-center gap-4 mb-8">
+                <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-3">
+                    <BookOpen size={28} className="text-purple-400" />
+                </div>
+                <div>
+                    <h1 className="text-3xl font-bold font-orbitron">Create New Course</h1>
+                    <p className="text-gray-400 text-sm mt-1">Build a structured learning path for your students</p>
+                </div>
+            </div>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="glass-panel p-8"
+            >
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Title */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Course Title</label>
-                            <input
-                                type="text"
-                                name="title"
-                                value={formData.title}
-                                onChange={handleChange}
-                                className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                                placeholder="e.g., Advanced Java Programming"
-                                required
-                            />
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Course Title</label>
+                            <input type="text" name="title" value={formData.title} onChange={handleChange}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400/30 transition-all"
+                                placeholder="e.g., Advanced Java Programming" required />
                         </div>
-                        {/* Description */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-                            <textarea
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                rows={4}
-                                className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors resize-none"
-                                placeholder="Detailed description of the course..."
-                                required
-                            />
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Description</label>
+                            <textarea name="description" value={formData.description} onChange={handleChange} rows={4}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400/30 transition-all resize-none"
+                                placeholder="Detailed description of the course..." required />
                         </div>
-                        {/* Category */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
-                            <select
-                                name="category"
-                                value={formData.category}
-                                onChange={(e) => handleCategoryChange(e.target.value)}
-                                className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                                required
-                            >
-                                <option value="">Select Category</option>
-                                {categoryOptions.map(cat => (
-                                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                                ))}
-                            </select>
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Category</label>
+                            <div className="modern-dropdown">
+                                <select name="category" value={formData.category} onChange={(e) => handleCategoryChange(e.target.value)} required>
+                                    <option value="">Select Category</option>
+                                    {categoryOptions.map(cat => (
+                                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
-                        {/* Duration */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Duration (minutes)</label>
-                            <input
-                                type="number"
-                                name="duration"
-                                value={formData.duration}
-                                onChange={handleChange}
-                                className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                                min="1"
-                                required
-                            />
+                            <label className="block text-sm font-semibold text-gray-300 mb-2">Duration (minutes)</label>
+                            <input type="number" name="duration" value={formData.duration} onChange={handleChange}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-400 transition-all"
+                                min="1" required />
                         </div>
-                        {/* Buttons */}
-                        <div className="flex justify-end space-x-4 pt-6 border-t border-white/10">
-                            <button
-                                type="button"
-                                onClick={() => navigate('/teacher/my-courses')}
-                                className="px-6 py-3 text-gray-300 hover:text-white transition-colors"
-                            >
+                        <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                            <button type="button" onClick={() => navigate('/teacher/my-courses')}
+                                className="px-6 py-2.5 text-gray-400 hover:text-white border border-white/10 rounded-xl hover:bg-white/5 transition-all">
                                 Cancel
                             </button>
-                            <button
-                                type="submit"
-                                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center shadow-lg shadow-purple-500/20"
-                            >
-                                <Save size={20} className="mr-2" /> Create & Add Content
+                            <button type="submit"
+                                className="px-8 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:opacity-90 hover:scale-[1.02] transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+                                <Save size={18} /> Create & Add Content
                             </button>
                         </div>
                     </form>
-                </motion.div>
-            </main>
+            </motion.div>
         </div>
     );
 };

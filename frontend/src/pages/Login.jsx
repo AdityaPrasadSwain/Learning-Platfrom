@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
-import ThreeBackground from '../components/ThreeBackground';
-import { gsap } from 'gsap';
+import PageWrapper from '../components/PageWrapper';
 import { showSuccess, showError, showLoading } from '../utils/sweetAlert';
 import Swal from 'sweetalert2';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -51,30 +52,43 @@ const Login = () => {
     };
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-            <ThreeBackground />
+        <PageWrapper showNavbar={false} showFooter={false} className="flex items-center justify-center">
             <div className="relative z-10 bg-white/90 dark:bg-black/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 p-8 w-full max-w-md animate-float rounded-2xl shadow-xl">
                 <h2 className="text-3xl font-display font-bold text-center mb-6 text-gray-900 dark:text-white">Login</h2>
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Username</label>
+                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Username or Email</label>
                         <input
                             type="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             className="w-full bg-gray-50 dark:bg-ai-surface/50 border border-gray-300 dark:border-white/10 rounded-xl p-3 focus:border-brand-secondary dark:focus:border-brand-primary focus:ring-2 focus:ring-brand-secondary/20 outline-none text-gray-900 dark:text-white transition-all"
-                            placeholder="Enter your username"
+                            placeholder="Enter your username or email"
                         />
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-ai-surface/50 border border-gray-300 dark:border-white/10 rounded-xl p-3 focus:border-brand-secondary dark:focus:border-brand-primary focus:ring-2 focus:ring-brand-secondary/20 outline-none text-gray-900 dark:text-white transition-all"
-                            placeholder="Enter your password"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-gray-50 dark:bg-ai-surface/50 border border-gray-300 dark:border-white/10 rounded-xl p-3 pr-10 focus:border-brand-secondary dark:focus:border-brand-primary focus:ring-2 focus:ring-brand-secondary/20 outline-none text-gray-900 dark:text-white transition-all"
+                                placeholder="Enter your password"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
+                        <div className="flex justify-end mt-2">
+                            <Link to="/forgot-password" className="text-sm text-brand-secondary hover:text-brand-primary font-medium transition-colors">
+                                Forgot password?
+                            </Link>
+                        </div>
                     </div>
                     <button
                         type="submit"
@@ -139,7 +153,7 @@ const Login = () => {
                     </p>
                 </div>
             </div>
-        </div>
+        </PageWrapper>
     );
 };
 

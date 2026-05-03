@@ -7,8 +7,8 @@ export const getDashboardStats = async () => {
 };
 
 // User Management
-export const getAllUsers = async () => {
-    const response = await api.get('/admin/users');
+export const getAllUsers = async (params = {}) => {
+    const response = await api.get('/admin/users', { params });
     return response.data;
 };
 

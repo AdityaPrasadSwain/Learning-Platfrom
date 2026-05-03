@@ -1,34 +1,52 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import TeacherNavbar from '../../components/TeacherNavbar';
-
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, User, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const TeacherProfile = () => {
     const navigate = useNavigate();
     const username = localStorage.getItem('username') || 'Teacher';
+    const email = localStorage.getItem('email') || '';
     const isApproved = localStorage.getItem('isApproved') === 'true';
 
     return (
-        <div className="min-h-screen text-white relative overflow-hidden flex items-center justify-center">
+        <div className="text-white max-w-xl mx-auto">
+            <h1 className="text-3xl font-bold font-orbitron mb-8">My Profile</h1>
 
-            <TeacherNavbar />
-            <div className="z-10 bg-gray-900/80 backdrop-blur-xl p-8 rounded-2xl border border-white/10 text-center w-full max-w-2xl shadow-2xl mt-20">
-                <h1 className="text-3xl font-bold mb-4">{username}'s Profile</h1>
-                {isApproved && (
-                    <div className="flex items-center justify-center mb-4">
-                        <CheckCircle className="text-green-500 w-6 h-6 mr-2" />
-                        <span className="text-green-500 font-semibold">Verified</span>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="glass-panel p-8 text-center space-y-5"
+            >
+                {/* Avatar */}
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-4xl font-bold mx-auto shadow-[0_0_30px_rgba(168,85,247,0.4)]">
+                    {username.charAt(0).toUpperCase()}
+                </div>
+
+                <div>
+                    <h2 className="text-2xl font-bold text-white">{username}</h2>
+                    {email && <p className="text-gray-400 text-sm mt-1">{email}</p>}
+                </div>
+
+                {isApproved ? (
+                    <div className="inline-flex items-center gap-2 bg-green-400/10 border border-green-400/30 text-green-400 px-4 py-2 rounded-full text-sm font-semibold">
+                        <CheckCircle size={16} /> Verified Teacher
+                    </div>
+                ) : (
+                    <div className="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 px-4 py-2 rounded-full text-sm font-semibold">
+                        Pending Approval
                     </div>
                 )}
-                <p className="text-gray-300">This is a placeholder for teacher profile details.</p>
+
+                <p className="text-gray-400 text-sm">Role: Teacher</p>
+
                 <button
                     onClick={() => navigate('/teacher/dashboard')}
-                    className="mt-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg"
+                    className="flex items-center gap-2 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold px-6 py-2.5 rounded-xl hover:scale-105 transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)]"
                 >
-                    Go to Teacher Dashboard
+                    Go to Dashboard <ArrowRight size={16} />
                 </button>
-            </div>
+            </motion.div>
         </div>
     );
 };

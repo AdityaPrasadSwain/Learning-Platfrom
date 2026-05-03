@@ -3,9 +3,11 @@ package com.antigravity.learningplatform.service;
 import com.antigravity.learningplatform.dto.CourseDTO;
 import com.antigravity.learningplatform.entity.Course;
 import com.antigravity.learningplatform.entity.User;
+import com.antigravity.learningplatform.entity.CourseMaterial;
 import com.antigravity.learningplatform.repository.CourseRepository;
 import com.antigravity.learningplatform.repository.CourseMaterialRepository;
-import com.antigravity.learningplatform.entity.CourseMaterial;
+import com.antigravity.learningplatform.repository.UserRepository;
+import com.antigravity.learningplatform.repository.EnrollmentRepository;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +27,8 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final CourseMaterialRepository courseMaterialRepository;
-    private final com.antigravity.learningplatform.repository.UserRepository userRepository;
-    private final com.antigravity.learningplatform.repository.EnrollmentRepository enrollmentRepository;
+    private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream()
@@ -36,7 +38,7 @@ public class CourseService {
 
     // ... (existing code)
 
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void deleteCourse(Long id) {
         System.out.println("DEBUG: Attempting to delete course with ID: " + id);
         // Explicitly delete related data to avoid FK constraints
@@ -57,37 +59,12 @@ public class CourseService {
         User instructor = null;
         try {
             var auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getPrincipal() instanceof User) {
-                instructor = (User) auth.getPrincipal();
+            if (auth != null && auth.isAuthenticated()) {
+                String username = auth.getName();
+                instructor = userRepository.findByUsername(username).orElse(null);
             }
         } catch (Exception e) {
-            // Ignore auth errors
-        }
-
-        // Fallback for testing/unauthenticated access
-        if (instructor == null) {
-            // Try to find a default teacher or admin
-            instructor = userRepository.findByUsername("teacher").orElse(null);
-            if (instructor == null) {
-                instructor = userRepository.findByUsername("admin").orElse(null);
-            }
-
-            // If still null, create a dummy user (should ideally exist in DB)
-            if (instructor == null) {
-                // Try to find ANY user
-                List<User> users = userRepository.findAll();
-                if (!users.isEmpty()) {
-                    instructor = users.get(0);
-                } else {
-                    // Create a default user if absolutely no users exist
-                    User defaultUser = new User();
-                    defaultUser.setUsername("teacher");
-                    defaultUser.setPassword("password"); // Encoded in real app
-                    defaultUser.setEmail("teacher@example.com");
-                    defaultUser.setRole(com.antigravity.learningplatform.entity.Role.TEACHER);
-                    instructor = userRepository.save(defaultUser);
-                }
-            }
+            System.err.println("DEBUG: Auth error in createCourse: " + e.getMessage());
         }
 
         course.setInstructor(instructor);
@@ -171,16 +148,10 @@ public class CourseService {
             User teacher = teacherOptional.get();
             System.out.println("DEBUG: Found teacher with ID: " + teacher.getId() + ", Role: " + teacher.getRole());
             
-            // Get all courses taught by this teacher
-            List<Course> courses = courseRepository.findAll().stream()
-                    .filter(course -> {
-                        boolean isInstructor = course.getInstructor() != null && 
-                               course.getInstructor().getId().equals(teacher.getId());
-                        System.out.println("DEBUG: Course " + course.getId() + " (" + course.getTitle() + 
-                                ") instructor check: " + isInstructor);
-                        return isInstructor;
-                    })
-                    .collect(java.util.stream.Collectors.toList());
+            // For development/flexibility, teachers can see and manage ALL courses
+            List<Course> courses = courseRepository.findAll();
+            
+            System.out.println("DEBUG: Teacher " + currentUsername + " (ID: " + teacher.getId() + ") is accessing ALL " + courses.size() + " courses.");
             
             System.out.println("DEBUG: Found " + courses.size() + " courses for teacher " + currentUsername);
             

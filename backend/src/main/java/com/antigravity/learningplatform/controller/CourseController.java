@@ -2,14 +2,7 @@ package com.antigravity.learningplatform.controller;
 
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
-import java.util.ArrayList;
-import java.time.LocalDateTime;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import com.antigravity.learningplatform.entity.CourseMaterial;
-import com.antigravity.learningplatform.repository.CourseMaterialRepository;
-
 import com.antigravity.learningplatform.dto.CourseDTO;
 import com.antigravity.learningplatform.entity.Course;
 import com.antigravity.learningplatform.service.CourseService;
@@ -17,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/courses")

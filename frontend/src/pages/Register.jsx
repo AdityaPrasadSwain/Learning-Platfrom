@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
-import ThreeBackground from '../components/ThreeBackground';
+import PageWrapper from '../components/PageWrapper';
 import { showSuccess, showError, showLoading } from '../utils/sweetAlert';
 import Swal from 'sweetalert2';
+import { Eye, EyeOff } from 'lucide-react';
 
 
 const Register = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [role, setRole] = useState('STUDENT');
     const navigate = useNavigate();
 
@@ -38,8 +40,6 @@ const Register = () => {
 
             Swal.close();
             await showSuccess('Welcome Aboard!', `Account created successfully as ${response.data.username}`);
-            Swal.close();
-            await showSuccess('Welcome Aboard!', `Account created successfully as ${response.data.username}`);
 
             if (role === 'TEACHER') {
                 navigate('/teacher/apply');
@@ -65,8 +65,7 @@ const Register = () => {
     };
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-            <ThreeBackground />
+        <PageWrapper showNavbar={false} showFooter={false} className="flex items-center justify-center">
             <div className="relative z-10 bg-white/90 dark:bg-black/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 p-8 w-full max-w-md animate-float rounded-2xl shadow-xl">
                 <h2 className="text-3xl font-display font-bold text-center mb-6 text-gray-900 dark:text-white">Join LearningStream</h2>
                 <form onSubmit={handleRegister} className="space-y-4">
@@ -92,27 +91,32 @@ const Register = () => {
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-ai-surface/50 border border-gray-300 dark:border-white/10 rounded-xl p-3 focus:border-brand-secondary dark:focus:border-brand-primary focus:ring-2 focus:ring-brand-secondary/20 outline-none text-gray-900 dark:text-white transition-all"
-                            placeholder="Password"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-gray-50 dark:bg-ai-surface/50 border border-gray-300 dark:border-white/10 rounded-xl p-3 pr-10 focus:border-brand-secondary dark:focus:border-brand-primary focus:ring-2 focus:ring-brand-secondary/20 outline-none text-gray-900 dark:text-white transition-all"
+                                placeholder="Password"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
                     </div>
                     <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Role</label>
-                    <div className="relative">
+                    <div className="modern-dropdown">
                         <select
                             value={role}
                             onChange={(e) => setRole(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-ai-surface/50 border border-gray-300 dark:border-white/10 rounded-xl p-3 focus:border-brand-secondary dark:focus:border-brand-primary focus:ring-2 focus:ring-brand-secondary/20 outline-none text-gray-900 dark:text-white transition-all appearance-none cursor-pointer"
                         >
-                            <option value="STUDENT" className="bg-white dark:bg-ai-surface text-gray-900 dark:text-white">Student (Learner)</option>
-                            <option value="TEACHER" className="bg-white dark:bg-ai-surface text-gray-900 dark:text-white">Instructor (Teacher)</option>
+                            <option value="STUDENT">Student (Learner)</option>
+                            <option value="TEACHER">Instructor (Teacher)</option>
                         </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                            <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
-                        </div>
                     </div>
 
                     <button
@@ -171,14 +175,14 @@ const Register = () => {
                 </form>
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Already enlisted?{' '}
+                        Already have an account?{' '}
                         <Link to="/login" className="text-brand-secondary hover:text-brand-primary font-semibold transition-colors">
                             Login here
                         </Link>
                     </p>
                 </div>
             </div>
-        </div>
+        </PageWrapper>
     );
 };
 

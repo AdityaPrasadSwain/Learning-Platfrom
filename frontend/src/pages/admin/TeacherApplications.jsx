@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../../components/Navbar';
-import ThreeBackground from '../../components/ThreeBackground';
 import { Search, CheckCircle, XCircle, ArrowLeft, FileText } from 'lucide-react';
 import { getPendingApplications, approveApplication, rejectApplication } from '../../api/adminApi';
 import { showSuccess, showError, showConfirm, showLoading } from '../../utils/sweetAlert';
@@ -89,19 +87,15 @@ const TeacherApplications = () => {
 
     if (loading) {
         return (
-            <div className="relative min-h-screen flex items-center justify-center">
-                <ThreeBackground />
-                <Navbar />
+            <div className="relative h-full flex items-center justify-center">
                 <div className="text-white text-2xl font-orbitron animate-pulse">Loading applications...</div>
             </div>
         );
     }
 
     return (
-        <div className="relative min-h-screen">
-            <ThreeBackground />
-            <Navbar />
-            <div className="relative z-10 pt-24 px-6 max-w-7xl mx-auto space-y-6">
+        <div className="relative h-full">
+            <div className="relative z-10 px-6 max-w-7xl mx-auto space-y-6">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-4">
                         <a

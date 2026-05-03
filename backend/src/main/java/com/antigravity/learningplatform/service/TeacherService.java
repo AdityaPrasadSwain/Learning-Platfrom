@@ -49,7 +49,7 @@ public class TeacherService {
         if (resumeFile != null && !resumeFile.isEmpty()) {
             try {
                 java.util.Map<String, Object> uploadResult = cloudinaryService.uploadFile(resumeFile);
-                resumeUrl = (String) uploadResult.get("url");
+                resumeUrl = (String) uploadResult.get("secure_url");
             } catch (java.io.IOException e) {
                 throw new RuntimeException("Failed to upload resume", e);
             }

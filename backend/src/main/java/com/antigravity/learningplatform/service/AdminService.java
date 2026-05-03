@@ -8,7 +8,14 @@ import com.antigravity.learningplatform.entity.User;
 import com.antigravity.learningplatform.repository.AuditLogRepository;
 import com.antigravity.learningplatform.repository.CourseRepository;
 import com.antigravity.learningplatform.repository.UserRepository;
+import com.antigravity.learningplatform.repository.EnrollmentRepository;
+import com.antigravity.learningplatform.dto.CourseDTO;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +28,14 @@ public class AdminService {
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final AuditLogRepository auditLogRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     // --- User Management ---
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public Page<User> getAllUsers(String search, Role role, Boolean isSuspended, int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return userRepository.findUsersWithFilters(search, role, isSuspended, pageable);
     }
 
     @Transactional
@@ -58,44 +68,50 @@ public class AdminService {
 
     // --- Course Management ---
 
-    public List<Course> getAllCourses() {
-        return courseRepository.findAll();
+    public List<CourseDTO> getAllCourses() {
+        return courseRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public Course approveCourse(Long courseId) {
+    public CourseDTO approveCourse(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         course.setIsPublished(true);
 
         logAction("APPROVE_COURSE", "COURSE", courseId, null);
-        return courseRepository.save(course);
+        return convertToDTO(courseRepository.save(course));
     }
 
     @Transactional
-    public Course rejectCourse(Long courseId) {
+    public CourseDTO rejectCourse(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         course.setIsPublished(false);
 
         logAction("REJECT_COURSE", "COURSE", courseId, null);
-        return courseRepository.save(course);
+        return convertToDTO(courseRepository.save(course));
     }
 
     // --- Dashboard & Audit ---
 
     public DashboardStatsDTO getDashboardStats() {
         long totalUsers = userRepository.count();
-        long suspendedUsers = userRepository.findAll().stream()
-                .filter(user -> user.getIsSuspended() != null && user.getIsSuspended())
-                .count();
+        Long suspendedCount = userRepository.countByIsSuspended(true);
+        long suspendedUsers = suspendedCount != null ? suspendedCount : 0L;
+
+        Long studentCount = userRepository.countByRole(Role.STUDENT);
+        Long teacherCount = userRepository.countByRole(Role.TEACHER);
+        Long activeCourseCount = courseRepository.countByIsPublished(true);
+        long courseCount = courseRepository.count();
 
         return DashboardStatsDTO.builder()
                 .totalUsers(totalUsers)
-                .totalStudents(userRepository.countByRole(Role.STUDENT))
-                .totalTeachers(userRepository.countByRole(Role.TEACHER))
-                .totalCourses(courseRepository.count())
-                .activeCourses(courseRepository.countByIsPublished(true))
+                .totalStudents(studentCount != null ? studentCount : 0L)
+                .totalTeachers(teacherCount != null ? teacherCount : 0L)
+                .totalCourses(courseCount)
+                .activeCourses(activeCourseCount != null ? activeCourseCount : 0L)
                 .totalEnrollments(0L) // TODO: Implement when Enrollment entity is ready
                 .activeUsers(totalUsers - suspendedUsers)
                 .suspendedUsers(suspendedUsers)
@@ -115,5 +131,23 @@ public class AdminService {
                 .details(details)
                 .build();
         auditLogRepository.save(log);
+    }
+
+    private CourseDTO convertToDTO(Course course) {
+        long enrollmentCount = enrollmentRepository.countByCourseId(course.getId());
+        
+        return CourseDTO.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .description(course.getDescription())
+                .category(course.getCategory())
+                .duration(course.getDuration())
+                .isPublished(course.getIsPublished())
+                .instructorId(course.getInstructor() != null ? course.getInstructor().getId() : null)
+                .instructorName(course.getInstructor() != null ? course.getInstructor().getUsername() : null)
+                .createdAt(course.getCreatedAt())
+                .updatedAt(course.getUpdatedAt())
+                .enrollmentCount(enrollmentCount)
+                .build();
     }
 }

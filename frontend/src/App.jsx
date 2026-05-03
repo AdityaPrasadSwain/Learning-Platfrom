@@ -11,6 +11,10 @@ import CourseDetails from './pages/CourseDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
+import ForgotPassword from './pages/ForgotPassword';
+import Features from './pages/Features';
+import Team from './pages/Team';
+import FAQ from './pages/FAQ';
 
 // Admin Imports
 import AdminDashboard from './pages/AdminDashboard';
@@ -20,6 +24,9 @@ import AuditLogs from './pages/admin/AuditLogs';
 import QuizManagement from './pages/admin/QuizManagement';
 import AdminQuizDetail from './pages/admin/QuizDetail';
 import TeacherApplications from './pages/admin/TeacherApplications';
+import AdminLayout from './layouts/AdminLayout';
+import TeacherLayout from './layouts/TeacherLayout';
+import StudentLayout from './layouts/StudentLayout';
 
 // Teacher Imports
 import TeacherDashboard from './pages/TeacherDashboard';
@@ -35,6 +42,8 @@ import QuizDetail from './pages/teacher/QuizDetail';
 import EditQuiz from './pages/teacher/EditQuiz';
 import TeacherProfile from './pages/teacher/TeacherProfile';
 import StartTeaching from './pages/teacher/StartTeaching';
+import TeacherCourseAttendance from './pages/teacher/TeacherCourseAttendance';
+import TeacherLiveClass from './pages/teacher/TeacherLiveClass';
 
 // Student Imports
 import StudentDashboard from './pages/StudentDashboard';
@@ -45,6 +54,7 @@ import QuizStart from './pages/student/QuizStart';
 import QuizAttempt from './pages/student/QuizAttempt';
 import QuizResult from './pages/student/QuizResult';
 import Payment from './pages/Payment';
+import StudentLiveClass from './pages/student/StudentLiveClass';
 
 // Profile
 import Profile from './pages/Profile';
@@ -52,22 +62,39 @@ import Profile from './pages/Profile';
 // Suspended
 import Suspended from './pages/Suspended';
 
+import RoleBasedLayout from './layouts/RoleBasedLayout';
+import PublicLayout from './layouts/PublicLayout';
+
 function App() {
     return (
         <ThemeProvider>
             <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <Routes>
-                    {/* Public Routes */}
-                    <Route path="/" element={<Home />} />
+                    {/* Public Guest Routes */}
+                    <Route element={<PublicLayout />}>
+                        <Route path="/" element={<Home />} />
+                    </Route>
+
+                    {/* Auth Routes (Standalone) */}
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+
+                    {/* Shared Public Routes (Auth-Aware Layout) */}
+                    <Route element={<RoleBasedLayout />}>
+                        <Route path="/courses" element={<Courses />} />
+                        <Route path="/course/:id" element={<CourseDetails />} />
+                    </Route>
+
+                    {/* Protected Shared Routes (All Roles) */}
+                    <Route element={<ProtectedRoute allowedRoles={['STUDENT', 'TEACHER', 'ADMIN']}><RoleBasedLayout /></ProtectedRoute>}>
+                        <Route path="/profile" element={<Profile />} />
+                    </Route>
+
                     <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/courses" element={<Courses />} />
-                    <Route path="/course/:id" element={<CourseDetails />} />
 
                     {/* Admin Routes */}
-                    <Route element={<ProtectedRoute allowedRoles={['ADMIN']}><Outlet /></ProtectedRoute>}>
+                    <Route element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminLayout /></ProtectedRoute>}>
                         <Route path="/admin/dashboard" element={<AdminDashboard />} />
                         <Route path="/admin/users" element={<UserManagement />} />
                         <Route path="/admin/courses" element={<CourseManagement />} />
@@ -78,24 +105,26 @@ function App() {
                     </Route>
 
                     {/* Teacher Routes */}
-                    <Route element={<ProtectedRoute allowedRoles={['TEACHER']}><Outlet /></ProtectedRoute>}>
-                        <Route path="/teacher/apply" element={<StartTeaching />} />
+                    <Route element={<ProtectedRoute allowedRoles={['TEACHER']}><TeacherLayout /></ProtectedRoute>}>
                         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
-                        <Route path="/teacher/course/:id/edit" element={<CourseEditor />} />
-                        <Route path="/teacher/upload" element={<UploadVideo />} />
-                        <Route path="/teacher/videos" element={<MyVideos />} />
                         <Route path="/teacher/my-courses" element={<TeacherCourses />} />
                         <Route path="/teacher/create-course" element={<CreateCourse />} />
+                        <Route path="/teacher/upload" element={<UploadVideo />} />
+                        <Route path="/teacher/course/edit/:courseId" element={<CourseEditor />} />
+                        <Route path="/teacher/apply" element={<StartTeaching />} />
                         <Route path="/teacher/quizzes" element={<TeacherQuizList />} />
                         <Route path="/teacher/quiz/create" element={<CreateQuiz />} />
                         <Route path="/teacher/quiz/:quizId" element={<QuizDetail />} />
                         <Route path="/teacher/quiz/:quizId/edit" element={<EditQuiz />} />
                         <Route path="/teacher/profile" element={<TeacherProfile />} />
+                        <Route path="/teacher/course/:courseId/attendance" element={<TeacherCourseAttendance />} />
+                        <Route path="/teacher/live-class" element={<TeacherLiveClass />} />
                     </Route>
 
-                    {/* Student Routes */}
-                    <Route element={<ProtectedRoute allowedRoles={['STUDENT']}><Outlet /></ProtectedRoute>}>
+                    {/* Student Exclusive Routes */}
+                    <Route element={<ProtectedRoute allowedRoles={['STUDENT']}><StudentLayout /></ProtectedRoute>}>
                         <Route path="/student/dashboard" element={<StudentDashboard />} />
+                        <Route path="/dashboard" element={<Navigate to="/student/dashboard" replace />} />
                         <Route path="/my-learning" element={<MyLearning />} />
                         <Route path="/videos" element={<StudentVideos />} />
                         <Route path="/student/quizzes" element={<StudentQuizList />} />
@@ -103,13 +132,8 @@ function App() {
                         <Route path="/student/quiz/:quizId/attempt" element={<QuizAttempt />} />
                         <Route path="/student/quiz/:quizId/result" element={<QuizResult />} />
                         <Route path="/payment/:courseId" element={<Payment />} />
-                    </Route>
-
-                    {/* Profile Route (All Users) */}
-                    <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'TEACHER', 'STUDENT']}><Outlet /></ProtectedRoute>}>
-                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/student/live-class" element={<StudentLiveClass />} />
                         <Route path="/watch/:id" element={<VideoPlayerPage />} />
-
                     </Route>
 
                     {/* Suspended Account Page */}

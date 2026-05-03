@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle, XCircle, Eye, TrendingUp, FileQuestion, ArrowLeft, Edit, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 import api from '../../api/axiosConfig';
-import Navbar from '../../components/Navbar';
-import ThreeBackground from '../../components/ThreeBackground';
 import { showSuccess, showError, showConfirm, showLoading } from '../../utils/sweetAlert';
 import Swal from 'sweetalert2';
 
@@ -119,10 +117,8 @@ const AdminQuizManagement = () => {
     };
 
     return (
-        <div className="relative min-h-screen">
-            <ThreeBackground />
-            <Navbar />
-            <div className="relative z-10 pt-24 px-6 max-w-7xl mx-auto space-y-6 pb-12">
+        <div className="relative h-full">
+            <div className="relative z-10 px-6 max-w-7xl mx-auto space-y-6 pb-12">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-4">
                         <Link

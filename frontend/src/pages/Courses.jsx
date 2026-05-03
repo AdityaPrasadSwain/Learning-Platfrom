@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Clock, User, Search, Filter, CheckCircle } from 'lucide-react';
+import { BookOpen, Clock, User, Search, Filter, CheckCircle, GraduationCap } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllCourses } from '../api/courseApi';
 import { enrollInCourse, isEnrolled } from '../api/enrollmentApi';
 import { showSuccess, showError, showLoading } from '../utils/sweetAlert';
 import Swal from 'sweetalert2';
-import Navbar from '../components/Navbar';
-
-import Footer from '../components/Footer';
-
 
 const Courses = () => {
     const navigate = useNavigate();
@@ -66,7 +62,6 @@ const Courses = () => {
         try {
             await enrollInCourse(courseId);
             Swal.close();
-            // Show success message briefly then navigate
             Swal.fire({
                 icon: 'success',
                 title: 'Enrolled!',
@@ -83,177 +78,128 @@ const Courses = () => {
         }
     };
 
-    // Get unique categories
-    const categories = ['All', ...new Set(courses.map(course => course.category))];
+    const categories = ['All', ...new Set(courses.map(course => course.category).filter(Boolean))];
 
-    // Filter courses
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            course.description.toLowerCase().includes(searchTerm.toLowerCase());
+            course.description?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = selectedCategory === 'All' || course.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white relative overflow-hidden flex items-center justify-center transition-colors duration-300">
-
-                <Navbar />
-                <div className="text-2xl">Loading courses...</div>
+            <div className="flex items-center justify-center h-64 text-white">
+                <div className="text-xl font-orbitron animate-pulse text-cyan-400">Loading catalog...</div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-white relative overflow-hidden flex flex-col transition-colors duration-300">
+        <div className="text-white">
+            {/* Header */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+                <h1 className="text-3xl font-bold font-orbitron">Explore <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Courses</span></h1>
+                <p className="text-gray-400 mt-1">Discover premium educational content and start your journey.</p>
+            </motion.div>
 
-            <Navbar />
+            {/* Search and Filter */}
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                    <input type="text" placeholder="Search courses..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 transition-all" />
+                </div>
+                <div className="modern-dropdown w-full md:w-48">
+                    <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+                        {categories.map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
 
-            <main className="container mx-auto px-6 pt-32 pb-12 flex-1">
-                {/* Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-12 text-center"
-                >
-                    <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 dark:from-purple-400 dark:via-pink-500 dark:to-cyan-500">
-                        Explore Courses
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400 text-lg">
-                        Discover amazing courses and start your learning journey
-                    </p>
+            {/* Results Count */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="mb-6 text-gray-400"
+            >
+                Found {filteredCourses.length} course{filteredCourses.length !== 1 ? 's' : ''}
+            </motion.div>
+
+            {/* Courses Grid */}
+            {filteredCourses.length === 0 ? (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
+                    <BookOpen size={56} className="mx-auto mb-4 text-gray-600" />
+                    <h2 className="text-xl font-bold mb-2">No courses found</h2>
+                    <p className="text-gray-400 text-sm">Try adjusting your search or filters</p>
                 </motion.div>
-
-                {/* Search and Filter */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="mb-8 flex flex-col md:flex-row gap-4"
-                >
-                    {/* Search Bar */}
-                    <div className="flex-1 relative">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-purple-400 z-10 pointer-events-none" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search courses..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-white dark:bg-gray-900/60 backdrop-blur-xl border border-gray-200 dark:border-purple-500/30 rounded-xl pl-12 pr-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors relative z-0 shadow-sm dark:shadow-none"
-                        />
-                    </div>
-
-                    {/* Category Filter */}
-                    <div className="w-full md:w-auto min-w-[180px]">
-                        <select
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="w-full bg-white dark:bg-gray-900/60 backdrop-blur-xl border border-gray-200 dark:border-purple-500/30 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors shadow-sm dark:shadow-none"
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {filteredCourses.map((course, index) => (
+                        <motion.div key={course.id}
+                            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
                         >
-                            {categories.map(cat => (
-                                <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                        </select>
-                    </div>
-                </motion.div>
+                            <Link to={`/course/${course.id}`}>
+                                <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden hover:border-cyan-500/40 transition-all group h-full">
+                                    <div className="h-40 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 flex items-center justify-center relative overflow-hidden">
+                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-cyan-500/10" />
+                                        <GraduationCap size={48} className="text-cyan-400 relative z-10 group-hover:scale-110 transition-transform" />
+                                    </div>
 
-                {/* Results Count */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="mb-6 text-gray-400"
-                >
-                    Found {filteredCourses.length} course{filteredCourses.length !== 1 ? 's' : ''}
-                </motion.div>
-
-                {/* Courses Grid */}
-                {filteredCourses.length === 0 ? (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="text-center py-20"
-                    >
-                        <BookOpen size={64} className="mx-auto mb-4 text-gray-600" />
-                        <h2 className="text-2xl font-bold mb-2">No courses found</h2>
-                        <p className="text-gray-400">Try adjusting your search or filters</p>
-                    </motion.div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredCourses.map((course, index) => (
-                            <motion.div
-                                key={course.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                            >
-                                <Link to={`/course/${course.id}`}>
-                                    <div className="bg-white dark:bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden hover:border-purple-500/50 transition-all hover:scale-105 cursor-pointer h-full shadow-lg dark:shadow-none">
-                                        {/* Course Header */}
-                                        <div className="h-40 bg-gradient-to-br from-purple-600/20 to-pink-600/20 flex items-center justify-center">
-                                            <BookOpen size={48} className="text-purple-600 dark:text-purple-400" />
+                                    <div className="p-6">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <span className="inline-block px-2.5 py-0.5 bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 rounded-full text-[10px] font-bold">
+                                                {course.category?.toUpperCase() || 'GENERAL'}
+                                            </span>
                                         </div>
 
-                                        {/* Course Content */}
-                                        <div className="p-6">
-                                            <div className="flex items-start justify-between mb-3">
-                                                <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-300 rounded-full text-sm font-medium">
-                                                    {course.category}
-                                                </span>
-                                                {course.isPublished && (
-                                                    <span className="inline-block px-3 py-1 bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-300 rounded-full text-sm font-medium">
-                                                        Published
-                                                    </span>
+                                        <h3 className="text-lg font-bold mb-2 line-clamp-1 text-white group-hover:text-cyan-400 transition-colors">
+                                            {course.title}
+                                        </h3>
+
+                                        <p className="text-gray-400 text-sm mb-4 line-clamp-2 h-10">
+                                            {course.description || 'Master the essential skills in this comprehensive course.'}
+                                        </p>
+
+                                        <div className="flex items-center justify-between text-[11px] text-gray-500 mb-5 pt-4 border-t border-white/5">
+                                            <div className="flex items-center gap-1.5">
+                                                <User size={13} />
+                                                <span>{course.instructorName || 'Instructor'}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5">
+                                                <Clock size={13} />
+                                                <span>{course.duration}m</span>
+                                            </div>
+                                        </div>
+
+                                        {isStudent && (
+                                            <div onClick={(e) => e.preventDefault()}>
+                                                {course.isEnrolled ? (
+                                                    <div className="flex items-center justify-center gap-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-xl border border-green-500/20 text-xs font-bold">
+                                                        <CheckCircle size={14} />
+                                                        <span>ENROLLED</span>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={(e) => handleEnroll(e, course.id, course.title)}
+                                                        className="w-full py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:opacity-90 transition-all font-bold text-xs shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                                                    >
+                                                        ENROLL NOW
+                                                    </button>
                                                 )}
                                             </div>
-
-                                            <h3 className="text-xl font-bold mb-2 line-clamp-2 text-slate-900 dark:text-white">
-                                                {course.title}
-                                            </h3>
-
-                                            <p className="text-slate-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
-                                                {course.description}
-                                            </p>
-
-                                            <div className="flex items-center justify-between text-sm text-slate-500 dark:text-gray-500 mb-4 pt-4 border-t border-gray-100 dark:border-white/10">
-                                                <div className="flex items-center gap-2">
-                                                    <User size={16} />
-                                                    <span>{course.instructorName || 'Instructor'}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Clock size={16} />
-                                                    <span>{course.duration} min</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Enrollment Button for Students */}
-                                            {isStudent && (
-                                                <div onClick={(e) => e.preventDefault()}>
-                                                    {course.isEnrolled ? (
-                                                        <div className="flex items-center justify-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-300 rounded-lg border border-green-200 dark:border-green-500/30">
-                                                            <CheckCircle size={18} />
-                                                            <span className="font-medium">Enrolled</span>
-                                                        </div>
-                                                    ) : (
-                                                        <button
-                                                            onClick={(e) => handleEnroll(e, course.id, course.title)}
-                                                            className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 transition-opacity font-medium shadow-md shadow-purple-500/20"
-                                                        >
-                                                            Enroll Now
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
+                                        )}
                                     </div>
-                                </Link>
-                            </motion.div>
-                        ))}
-                    </div>
-                )}
-            </main>
-
-            <Footer />
+                                </div>
+                            </Link>
+                        </motion.div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

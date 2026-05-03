@@ -29,19 +29,37 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
-        String name = oAuth2User.getAttribute("name");
+        String fullName = oAuth2User.getAttribute("name");
+        String firstName = oAuth2User.getAttribute("given_name");
+        String lastName = oAuth2User.getAttribute("family_name");
+
+        // Fallback if specific name fields are missing
+        if (firstName == null && fullName != null) {
+            String[] parts = fullName.split(" ", 2);
+            firstName = parts[0];
+            if (parts.length > 1) {
+                lastName = parts[1];
+            }
+        }
 
         Optional<User> userOptional = userRepository.findByEmail(email);
         User user;
 
         if (userOptional.isPresent()) {
             user = userOptional.get();
-            // Update name if needed or just proceed
+            // Update details on login
+            if (user.getFirstName() == null && firstName != null)
+                user.setFirstName(firstName);
+            if (user.getLastName() == null && lastName != null)
+                user.setLastName(lastName);
+            userRepository.save(user);
         } else {
             // Create new user
             user = new User();
             user.setEmail(email);
-            user.setUsername(email.split("@")[0]); // Use part of email as username
+            user.setUsername(email); // Use email as username to ensure uniqueness
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
             user.setPassword(""); // No password for OAuth users
             user.setRole(Role.STUDENT); // Default role
             user = userRepository.save(user);

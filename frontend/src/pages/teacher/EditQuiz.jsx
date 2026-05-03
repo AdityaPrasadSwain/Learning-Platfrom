@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Save, ArrowLeft } from 'lucide-react';
-import TeacherNavbar from '../../components/TeacherNavbar';
-import Footer from '../../components/Footer';
-
+import { Save, ArrowLeft, Edit } from 'lucide-react';
 import { getTeacherQuiz, updateQuiz } from '../../api/quizApi';
 import { showSuccess, showError } from '../../utils/sweetAlert';
-import axios from 'axios';
+import api from '../../api/axiosConfig';
 
 const EditQuiz = () => {
     const { quizId } = useParams();
@@ -15,33 +12,23 @@ const EditQuiz = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [formData, setFormData] = useState({
-        title: '',
-        description: '',
-        courseId: '',
-        duration: 30
-    });
+    const [formData, setFormData] = useState({ title: '', description: '', courseId: '', duration: 30 });
 
-    useEffect(() => {
-        fetchData();
-    }, [quizId]);
+    useEffect(() => { fetchData(); }, [quizId]);
 
     const fetchData = async () => {
         try {
-            const [quizData, coursesResponse] = await Promise.all([
+            const [quizData, coursesRes] = await Promise.all([
                 getTeacherQuiz(quizId),
-                axios.get('http://localhost:8080/api/courses/my-courses', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                })
+                api.get('/courses/teacher/my-courses')
             ]);
-
             setFormData({
                 title: quizData.title,
                 description: quizData.description || '',
                 courseId: quizData.courseId || '',
                 duration: quizData.duration || 30
             });
-            setCourses(coursesResponse.data);
+            setCourses(coursesRes.data);
         } catch (error) {
             showError('Failed to load quiz');
             navigate('/teacher/quizzes');
@@ -58,26 +45,12 @@ const EditQuiz = () => {
         }));
     };
 
-    const handleCourseChange = (e) => {
-        setFormData(prev => ({
-            ...prev,
-            courseId: e.target.value ? parseInt(e.target.value) : ''
-        }));
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.title.trim()) {
-            showError('Please enter a quiz title');
-            return;
-        }
-
+        if (!formData.title.trim()) { showError('Please enter a quiz title'); return; }
         setSaving(true);
         try {
-            await updateQuiz(quizId, {
-                ...formData,
-                courseId: formData.courseId || null
-            });
+            await updateQuiz(quizId, { ...formData, courseId: formData.courseId || null });
             showSuccess('Quiz updated successfully!');
             navigate(`/teacher/quiz/${quizId}`);
         } catch (error) {
@@ -87,112 +60,74 @@ const EditQuiz = () => {
         }
     };
 
+    const inputClass = "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400/30 transition-all";
+    const labelClass = "block text-sm font-semibold text-gray-300 mb-2";
+
     if (loading) {
         return (
-            <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
-
-                <div className="relative z-10">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-                </div>
+            <div className="flex items-center justify-center h-64 text-white">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-purple-400" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen relative overflow-hidden">
+        <div className="text-white max-w-2xl mx-auto">
+            <button
+                onClick={() => navigate(`/teacher/quiz/${quizId}`)}
+                className="flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition group"
+            >
+                <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                Back to Quiz
+            </button>
 
-            <div className="relative z-10">
-                <TeacherNavbar />
-                <div className="pt-24 pb-12 px-6">
-                    <div className="container mx-auto max-w-2xl">
-                        <button
-                            onClick={() => navigate(`/teacher/quiz/${quizId}`)}
-                            className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition"
-                        >
-                            <ArrowLeft size={20} /> Back to Quiz
-                        </button>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-8"
-                        >
-                            <h1 className="text-2xl font-bold text-white mb-6">Edit Quiz</h1>
-
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>
-                                    <label className="block text-gray-300 mb-2">Quiz Title *</label>
-                                    <input
-                                        type="text"
-                                        name="title"
-                                        value={formData.title}
-                                        onChange={handleChange}
-                                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                                        placeholder="Enter quiz title"
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-gray-300 mb-2">Description</label>
-                                    <textarea
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        rows={4}
-                                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                                        placeholder="Enter quiz description"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-gray-300 mb-2">Course (Optional)</label>
-                                    <select
-                                        name="courseId"
-                                        value={formData.courseId}
-                                        onChange={handleCourseChange}
-                                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500"
-                                    >
-                                        <option value="">No Course</option>
-                                        {courses.map(course => (
-                                            <option key={course.id} value={course.id}>
-                                                {course.title}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-gray-300 mb-2">Duration (minutes)</label>
-                                    <input
-                                        type="number"
-                                        name="duration"
-                                        value={formData.duration}
-                                        onChange={handleChange}
-                                        min="1"
-                                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500"
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={saving}
-                                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg hover:opacity-90 transition disabled:opacity-50"
-                                >
-                                    {saving ? (
-                                        <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div>
-                                    ) : (
-                                        <>
-                                            <Save size={20} /> Save Changes
-                                        </>
-                                    )}
-                                </button>
-                            </form>
-                        </motion.div>
-                    </div>
+            <div className="flex items-center gap-4 mb-8">
+                <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-3">
+                    <Edit size={28} className="text-purple-400" />
                 </div>
-                <Footer />
+                <div>
+                    <h1 className="text-3xl font-bold font-orbitron">Edit Quiz</h1>
+                    <p className="text-gray-400 text-sm mt-1">Update your quiz details</p>
+                </div>
             </div>
+
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="glass-panel p-8"
+            >
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label className={labelClass}>Quiz Title *</label>
+                        <input type="text" name="title" value={formData.title} onChange={handleChange}
+                            className={inputClass} placeholder="Enter quiz title" required />
+                    </div>
+                    <div>
+                        <label className={labelClass}>Description</label>
+                        <textarea name="description" value={formData.description} onChange={handleChange}
+                            rows={4} className={inputClass} placeholder="Enter quiz description" />
+                    </div>
+                    <div>
+                        <label className={labelClass}>Course (Optional)</label>
+                        <select name="courseId" value={formData.courseId} onChange={handleChange}
+                            className={inputClass + " cursor-pointer"}>
+                            <option value="" className="bg-gray-900">No Course</option>
+                            {courses.map(course => (
+                                <option key={course.id} value={course.id} className="bg-gray-900">{course.title}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelClass}>Duration (minutes)</label>
+                        <input type="number" name="duration" value={formData.duration} onChange={handleChange}
+                            min="1" className={inputClass} />
+                    </div>
+                    <button type="submit" disabled={saving}
+                        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3.5 rounded-xl hover:opacity-90 hover:scale-[1.01] transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+                        {saving ? <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white" /> : <><Save size={18} /> Save Changes</>}
+                    </button>
+                </form>
+            </motion.div>
         </div>
     );
 };
